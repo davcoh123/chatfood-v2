@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 
 interface Customizations {
   title?: string;
@@ -24,8 +24,17 @@ interface MetricData {
 }
 
 export const useDashboardConfig = (sectionId: string, options?: { userId?: string }) => {
-  const { profile } = useAuth();
-  const userId = options?.userId ?? profile?.user_id;
+  const [authUserId, setAuthUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!options?.userId) {
+      supabase.auth.getUser().then(({ data }) => {
+        if (data.user) setAuthUserId(data.user.id);
+      });
+    }
+  }, [options?.userId]);
+
+  const userId = options?.userId || authUserId || '';
 
   // Fetch configuration from database
   const { data: config, isLoading: configLoading } = useQuery<DashboardConfig | null>({

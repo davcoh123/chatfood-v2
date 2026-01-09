@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 
 interface TopProduct {
   name: string;
@@ -35,40 +35,50 @@ const CATEGORY_PALETTE = [
   '#A855F7', // purple
 ];
 
-export function useProductsAnalytics() {
-  const { user } = useAuth();
+export function useProductsAnalytics(passedUserId?: string) {
+  const [authUserId, setAuthUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!passedUserId) {
+      supabase.auth.getUser().then(({ data }) => {
+        if (data.user) setAuthUserId(data.user.id);
+      });
+    }
+  }, [passedUserId]);
+
+  const userId = passedUserId || authUserId || '';
 
   const { data: orders, isLoading: ordersLoading } = useQuery({
-    queryKey: ['products-analytics-orders', user?.id],
+    queryKey: ['products-analytics-orders', userId],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!userId) return [];
       
       const { data, error } = await supabase
         .from('chatbot_orders')
         .select('id, commande_item, status')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .in('status', ['delivered', 'ready', 'preparing', 'confirmed']);
       
       if (error) throw error;
       return data || [];
     },
-    enabled: !!user?.id,
+    enabled: !!userId,
   });
 
   const { data: products } = useQuery({
-    queryKey: ['products-list', user?.id],
+    queryKey: ['products-list', userId],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!userId) return [];
       
       const { data, error } = await supabase
         .from('products')
         .select('id, name, category, unit_price')
-        .eq('user_id', user.id);
+        .eq('user_id', userId);
       
       if (error) throw error;
       return data || [];
     },
-    enabled: !!user?.id,
+    enabled: !!userId,
   });
 
   // Aggregate product sales

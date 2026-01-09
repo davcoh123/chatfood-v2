@@ -1,0 +1,31 @@
+---
+import '@/styles/global.css';
+import { OnboardingPage } from '@/components/react/OnboardingPage';
+
+// Get user from middleware
+const user = Astro.locals.user;
+
+// Redirect if not logged in
+if (!user) {
+  return Astro.redirect('/login');
+}
+
+// Redirect if onboarding already completed
+if (user.onboarding_completed) {
+  return Astro.redirect('/dashboard');
+}
+---
+
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Configuration - ChatFood</title>
+    <meta name="description" content="Configurez votre restaurant sur ChatFood en quelques étapes simples." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <OnboardingPage client:only="react" userId={user.id} />
+  </body>
+</html>

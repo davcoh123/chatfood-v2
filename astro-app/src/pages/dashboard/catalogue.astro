@@ -1,6 +1,6 @@
 ---
 import DashboardLayout from '@/layouts/DashboardLayout.astro';
-import CataloguePage from '@/components/react/CataloguePage';
+import { CataloguePageWrapper } from '@/components/react/CataloguePageWrapper';
 
 // Get user from middleware locals
 const user = (Astro.locals as any).user;
@@ -19,6 +19,6 @@ if (!user) {
       </p>
     </div>
     
-    <CataloguePage client:only="react" userId={user.id} />
+    <CataloguePageWrapper client:only="react" userId={user.id} />
   </div>
 </DashboardLayout>

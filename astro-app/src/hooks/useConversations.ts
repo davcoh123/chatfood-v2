@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/contexts/AuthContext';
 
 export interface Message {
   id: string;
@@ -24,8 +24,17 @@ export interface Conversation {
 
 export const useConversations = (passedUserId?: string) => {
   const { toast } = useToast();
-  const { profile } = useAuth();
-  const userId = passedUserId ?? profile?.user_id;
+  const [authUserId, setAuthUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!passedUserId) {
+      supabase.auth.getUser().then(({ data }) => {
+        if (data.user) setAuthUserId(data.user.id);
+      });
+    }
+  }, [passedUserId]);
+
+  const userId = passedUserId || authUserId || '';
 
   const { data, isLoading, error, refetch } = useQuery<{ conversations: Conversation[] }>({
     queryKey: ['conversations', userId],

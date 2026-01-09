@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { useRevenueAnalytics } from './useRevenueAnalytics';
 import { useOrdersAnalytics } from './useOrdersAnalytics';
 import { useCustomerAnalytics } from './useCustomerAnalytics';
@@ -12,9 +12,24 @@ import {
   AnalyticsExportData 
 } from '@/utils/analyticsExport';
 
-export function useAnalyticsExport() {
-  const { profile } = useAuth();
+export function useAnalyticsExport(passedUserId?: string) {
+  const [restaurantName, setRestaurantName] = useState<string>('Restaurant');
   const [isExporting, setIsExporting] = useState(false);
+
+  useEffect(() => {
+    const fetchRestaurantName = async () => {
+      const userId = passedUserId || (await supabase.auth.getUser()).data.user?.id;
+      if (userId) {
+        const { data } = await supabase
+          .from('restaurant_settings')
+          .select('restaurant_name')
+          .eq('user_id', userId)
+          .single();
+        if (data?.restaurant_name) setRestaurantName(data.restaurant_name);
+      }
+    };
+    fetchRestaurantName();
+  }, [passedUserId]);
 
   const { 
     revenueThisMonth, 
@@ -23,7 +38,7 @@ export function useAnalyticsExport() {
     averageWeeklyRevenue,
     weeklyRevenue,
     revenueByCategory,
-  } = useRevenueAnalytics();
+  } = useRevenueAnalytics(passedUserId);
 
   const { 
     ordersThisMonth, 
@@ -31,7 +46,7 @@ export function useAnalyticsExport() {
     ordersByDayOfWeek,
     peakDay,
     peakHour,
-  } = useOrdersAnalytics();
+  } = useOrdersAnalytics(passedUserId);
 
   const { 
     totalCustomers, 
@@ -39,12 +54,12 @@ export function useAnalyticsExport() {
     retentionRate,
     newCustomersThisMonth,
     segments,
-  } = useCustomerAnalytics();
+  } = useCustomerAnalytics(passedUserId);
 
   const { 
     topProducts, 
     totalSales,
-  } = useProductsAnalytics();
+  } = useProductsAnalytics(passedUserId);
 
   const { 
     averageRating, 
@@ -118,9 +133,6 @@ export function useAnalyticsExport() {
     setIsExporting(true);
     try {
       const data = buildExportData();
-      const restaurantName = profile?.first_name 
-        ? `Restaurant de ${profile.first_name}` 
-        : 'Mon Restaurant';
       
       await exportAnalyticsPDF(data, restaurantName);
       toast.success('Rapport PDF téléchargé');
@@ -136,9 +148,6 @@ export function useAnalyticsExport() {
     setIsExporting(true);
     try {
       const data = buildExportData();
-      const restaurantName = profile?.first_name 
-        ? `Restaurant de ${profile.first_name}` 
-        : 'Mon Restaurant';
       
       await exportAnalyticsExcel(data, restaurantName);
       toast.success('Rapport Excel téléchargé');

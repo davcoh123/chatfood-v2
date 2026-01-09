@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
 import { useConversations } from '@/hooks/useConversations';
 import { ConversationMessage } from './ConversationMessage';
 import { Input } from '@/components/ui/input';
@@ -10,16 +9,15 @@ import { useToast } from '@/hooks/use-toast';
 
 interface ConversationsWidgetProps {
   sectionId?: string;
-  userId?: string;
+  userId: string;
 }
 
 export const ConversationsWidget: React.FC<ConversationsWidgetProps> = ({
   sectionId = 'conversations',
   userId,
 }) => {
-  const { profile } = useAuth();
   const { toast } = useToast();
-  const effectiveUserId = userId || profile?.user_id || '';
+  const effectiveUserId = userId;
   const { conversations, isLoading, isRefreshing, error, refetch } = useConversations(
     effectiveUserId
   );

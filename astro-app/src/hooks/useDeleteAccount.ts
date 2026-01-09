@@ -1,13 +1,9 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
 
 export const useDeleteAccount = () => {
   const [isDeleting, setIsDeleting] = useState(false);
-  const { signOut } = useAuth();
-  const navigate = useNavigate();
 
   const deleteAccount = async (confirmation: string) => {
     if (confirmation !== 'SUPPRIMER') {
@@ -36,8 +32,8 @@ export const useDeleteAccount = () => {
       toast.success('Votre compte a été supprimé avec succès');
       
       // Déconnexion et redirection
-      await signOut();
-      navigate('/');
+      await supabase.auth.signOut();
+      window.location.href = '/';
       
       return true;
     } catch (error) {

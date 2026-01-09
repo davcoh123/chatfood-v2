@@ -1,6 +1,6 @@
 ---
 import DashboardLayout from '@/layouts/DashboardLayout.astro';
-import SettingsPage from '@/components/react/SettingsPage';
+import { SettingsPageWrapper } from '@/components/react/SettingsPageWrapper';
 
 // Get user from middleware locals (profile data is already merged)
 const user = (Astro.locals as any).user;
@@ -19,12 +19,10 @@ if (!user) {
       </p>
     </div>
     
-    <SettingsPage 
+    <SettingsPageWrapper 
       client:only="react" 
       userId={user.id}
       userEmail={user.email || ''}
-      firstName={user.first_name || ''}
-      lastName={user.last_name || ''}
     />
   </div>
 </DashboardLayout>

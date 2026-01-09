@@ -2,20 +2,22 @@ import React, { useState } from 'react';
 import { CheckCircle, MessageCircle, Loader2 } from 'lucide-react';
 import { WhatsAppOnboardingButton } from '@/components/dashboard/WhatsAppOnboardingButton';
 import { useWhatsAppIntegration } from '@/hooks/useWhatsAppIntegration';
-import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
-const OnboardingStep3: React.FC = () => {
-  const { user } = useAuth();
+interface OnboardingStep3Props {
+  userId: string;
+}
+
+const OnboardingStep3: React.FC<OnboardingStep3Props> = ({ userId }) => {
   const { toast } = useToast();
-  const { integration, isLoading, refetch } = useWhatsAppIntegration();
+  const { integration, isLoading, refetch } = useWhatsAppIntegration(userId);
   const isConnected = integration?.status === 'active';
   const [isDisconnecting, setIsDisconnecting] = useState(false);
 
   const handleDisconnect = async () => {
-    if (!user?.id) return;
+    if (!userId) return;
     
     setIsDisconnecting(true);
     try {
@@ -23,13 +25,13 @@ const OnboardingStep3: React.FC = () => {
       await supabase
         .from('whatsapp_integrations')
         .update({ status: 'inactive' })
-        .eq('user_id', user.id);
+        .eq('user_id', userId);
       
       // Only disable chatbot, keep all tokens/data in restaurant_settings
       await supabase
         .from('restaurant_settings')
         .update({ chatbot_active: false })
-        .eq('user_id', user.id);
+        .eq('user_id', userId);
       
       refetch();
       toast({

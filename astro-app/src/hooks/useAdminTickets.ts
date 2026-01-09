@@ -1,13 +1,27 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 
-export const useAdminTickets = () => {
-  const { profile } = useAuth();
+export const useAdminTickets = (passedRole?: string) => {
+  const [role, setRole] = useState<string | null>(passedRole || null);
   const [awaitingAdminCount, setAwaitingAdminCount] = useState(0);
 
+  useEffect(() => {
+    if (!passedRole) {
+      supabase.auth.getUser().then(async ({ data }) => {
+        if (data.user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', data.user.id)
+            .single();
+          if (profile) setRole(profile.role);
+        }
+      });
+    }
+  }, [passedRole]);
+
   const fetchAwaitingCount = async () => {
-    if (profile?.role !== 'admin') return;
+    if (role !== 'admin') return;
 
     try {
       const { data, error } = await supabase
@@ -23,7 +37,7 @@ export const useAdminTickets = () => {
   };
 
   useEffect(() => {
-    if (profile?.role === 'admin') {
+    if (role === 'admin') {
       fetchAwaitingCount();
 
       // Subscribe to real-time updates
@@ -46,7 +60,7 @@ export const useAdminTickets = () => {
         supabase.removeChannel(channel);
       };
     }
-  }, [profile?.role]);
+  }, [role]);
 
   return { awaitingAdminCount };
 };

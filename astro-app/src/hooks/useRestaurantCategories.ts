@@ -1,7 +1,20 @@
 import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-export function useRestaurantCategories(userId?: string) {
+export function useRestaurantCategories(passedUserId?: string) {
+  const [authUserId, setAuthUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!passedUserId) {
+      supabase.auth.getUser().then(({ data }) => {
+        if (data.user) setAuthUserId(data.user.id);
+      });
+    }
+  }, [passedUserId]);
+
+  const userId = passedUserId || authUserId || '';
+
   return useQuery({
     queryKey: ['restaurant-categories', userId],
     queryFn: async () => {

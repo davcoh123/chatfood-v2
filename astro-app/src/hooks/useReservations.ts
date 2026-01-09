@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 export interface Reservation {
@@ -18,8 +18,17 @@ export interface Reservation {
 
 export const useReservations = (passedUserId?: string) => {
   const queryClient = useQueryClient();
-  const { profile } = useAuth();
-  const userId = passedUserId ?? profile?.user_id;
+  const [authUserId, setAuthUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!passedUserId) {
+      supabase.auth.getUser().then(({ data }) => {
+        if (data.user) setAuthUserId(data.user.id);
+      });
+    }
+  }, [passedUserId]);
+
+  const userId = passedUserId || authUserId || '';
 
   // Récupérer les réservations depuis Supabase
   const { data: reservations = [], isLoading, error, refetch } = useQuery({

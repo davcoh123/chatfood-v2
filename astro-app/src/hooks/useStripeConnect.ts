@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 interface StripeAccountStatus {
@@ -15,14 +14,23 @@ interface StripeAccountStatus {
   requirements?: any;
 }
 
-export function useStripeConnect() {
-  const { user } = useAuth();
+export function useStripeConnect(passedUserId?: string) {
+  const [userId, setUserId] = useState<string | null>(passedUserId || null);
   const [status, setStatus] = useState<StripeAccountStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isConnecting, setIsConnecting] = useState(false);
 
+  // Get userId from auth if not passed
+  useEffect(() => {
+    if (!passedUserId) {
+      supabase.auth.getUser().then(({ data }) => {
+        if (data.user) setUserId(data.user.id);
+      });
+    }
+  }, [passedUserId]);
+
   const fetchStatus = useCallback(async () => {
-    if (!user) {
+    if (!userId) {
       setIsLoading(false);
       return;
     }
@@ -67,14 +75,14 @@ export function useStripeConnect() {
     } finally {
       setIsLoading(false);
     }
-  }, [user]);
+  }, [userId]);
 
   useEffect(() => {
     fetchStatus();
   }, [fetchStatus]);
 
   const startOnboarding = async () => {
-    if (!user) return;
+    if (!userId) return;
 
     setIsConnecting(true);
     try {

@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { useAuth } from '@/contexts/AuthContext';
+import { useEffect, useState } from 'react';
 
 export interface OrderItem {
   product_id?: string;
@@ -34,8 +34,18 @@ export interface Order {
 
 export const useOrders = (passedUserId?: string) => {
   const queryClient = useQueryClient();
-  const { profile } = useAuth();
-  const userId = passedUserId ?? profile?.user_id;
+  const [authUserId, setAuthUserId] = useState<string | null>(null);
+  
+  // Get userId from Supabase auth if not passed
+  useEffect(() => {
+    if (!passedUserId) {
+      supabase.auth.getUser().then(({ data }) => {
+        if (data.user) setAuthUserId(data.user.id);
+      });
+    }
+  }, [passedUserId]);
+  
+  const userId = passedUserId || authUserId || '';
 
   // Récupérer les produits pour enrichir les commandes avec les catégories
   const { data: products = [] } = useQuery<ProductInfo[]>({

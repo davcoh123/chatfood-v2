@@ -11,19 +11,18 @@ import { OrdersStats } from './OrdersStats';
 import { CustomerReviewsCard } from './CustomerReviewsCard';
 import { useRestaurantSettings } from '@/hooks/useRestaurantSettings';
 import { useWhatsAppIntegration } from '@/hooks/useWhatsAppIntegration';
-import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/hooks/useSubscription';
 
 interface OrdersPanelProps {
-  userId?: string;
+  userId: string;
+  userPlan?: string;
 }
 
-export const OrdersPanel: React.FC<OrdersPanelProps> = ({ userId }) => {
+export const OrdersPanel: React.FC<OrdersPanelProps> = ({ userId, userPlan }) => {
   const [activeTab, setActiveTab] = useState<'current' | 'history' | 'stats' | 'reviews'>('current');
-  const { profile } = useAuth();
-  const effectiveUserId = userId ?? profile?.user_id;
+  const effectiveUserId = userId;
   
-  const { canAccessOrderStats, canAccessCustomerReviews } = useSubscription();
+  const { canAccessOrderStats, canAccessCustomerReviews } = useSubscription(userPlan);
   
   const {
     isLoading,

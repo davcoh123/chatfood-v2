@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 import { subMonths, startOfMonth, endOfMonth, format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -27,25 +27,35 @@ interface CustomerData {
   lastOrderDate: Date;
 }
 
-export function useCustomerAnalytics() {
-  const { user } = useAuth();
+export function useCustomerAnalytics(passedUserId?: string) {
+  const [authUserId, setAuthUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!passedUserId) {
+      supabase.auth.getUser().then(({ data }) => {
+        if (data.user) setAuthUserId(data.user.id);
+      });
+    }
+  }, [passedUserId]);
+
+  const userId = passedUserId || authUserId || '';
 
   // Fetch orders directly - the source of truth for customer data
   const { data: orders, isLoading: ordersLoading } = useQuery({
-    queryKey: ['customer-analytics-orders', user?.id],
+    queryKey: ['customer-analytics-orders', userId],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!userId) return [];
       
       const { data, error } = await supabase
         .from('chatbot_orders')
         .select('id, phone, heure_de_commande, price_total, status')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .in('status', ['delivered', 'ready', 'preparing', 'confirmed']);
       
       if (error) throw error;
       return data || [];
     },
-    enabled: !!user?.id,
+    enabled: !!userId,
   });
 
   const now = new Date();

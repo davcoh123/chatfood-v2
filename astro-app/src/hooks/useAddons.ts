@@ -1,7 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { useAuth } from '@/contexts/AuthContext';
+
 
 export interface Addon {
   id?: string;
@@ -15,8 +16,17 @@ export interface Addon {
 
 export const useAddons = (options?: { userId?: string }) => {
   const queryClient = useQueryClient();
-  const { profile } = useAuth();
-  const userId = options?.userId ?? profile?.user_id;
+  const [authUserId, setAuthUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!options?.userId) {
+      supabase.auth.getUser().then(({ data }) => {
+        if (data.user) setAuthUserId(data.user.id);
+      });
+    }
+  }, [options?.userId]);
+
+  const userId = options?.userId || authUserId || '';
 
   // Récupérer les add-ons depuis Supabase
   const { data: addons, isLoading, error } = useQuery<Addon[]>({

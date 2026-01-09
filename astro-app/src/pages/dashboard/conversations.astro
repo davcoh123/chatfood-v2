@@ -1,6 +1,6 @@
 ---
 import DashboardLayout from '@/layouts/DashboardLayout.astro';
-import { ConversationsWidget } from '@/components/dashboard/ConversationsWidget';
+import { ConversationsPageWrapper } from '@/components/react/ConversationsPageWrapper';
 
 // Get user from middleware locals
 const user = (Astro.locals as any).user;
@@ -19,19 +19,6 @@ if (!user) {
       </p>
     </div>
     
-    <div id="conversations-widget" data-section-id="conversations"></div>
+    <ConversationsPageWrapper client:only="react" userId={user.id} />
   </div>
 </DashboardLayout>
-
-<script>
-  import React from 'react';
-  import ReactDOM from 'react-dom/client';
-  import { ConversationsWidget } from '@/components/dashboard/ConversationsWidget';
-
-  const container = document.getElementById('conversations-widget');
-  if (container) {
-    const sectionId = container.dataset.sectionId;
-    const root = ReactDOM.createRoot(container);
-    root.render(React.createElement(ConversationsWidget, { sectionId }));
-  }
-</script>

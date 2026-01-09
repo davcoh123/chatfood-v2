@@ -113,18 +113,37 @@ export const onRequest = defineMiddleware(async (context, next) => {
     let role = 'user';
     let plan = 'starter';
     
-    try {
-      const [profileResult, roleResult, subResult] = await Promise.all([
-        supabase.from('profiles').select('*').eq('user_id', user.id).single(),
-        supabase.from('user_roles').select('role').eq('user_id', user.id).single(),
-        supabase.from('user_subscriptions').select('plan').eq('user_id', user.id).single(),
-      ]);
-      
+    // Fetch profile, role, subscription AND restaurant_settings
+    const [profileResult, roleResult, subResult, settingsResult] = await Promise.all([
+      supabase.from('profiles').select('*').eq('user_id', user.id).maybeSingle(),
+      supabase.from('user_roles').select('role').eq('user_id', user.id).maybeSingle(),
+      supabase.from('user_subscriptions').select('plan').eq('user_id', user.id).maybeSingle(),
+      supabase.from('restaurant_settings').select('onboarding_completed').eq('user_id', user.id).maybeSingle(),
+    ]);
+    
+    // Handle results - maybeSingle returns null if no row found (no error)
+    if (profileResult.data) {
       profile = profileResult.data;
-      role = roleResult.data?.role || 'user';
-      plan = subResult.data?.plan || 'starter';
-    } catch (e) {
-      // Profile might not exist yet
+    }
+    if (roleResult.data?.role) {
+      role = roleResult.data.role;
+    }
+    if (subResult.data?.plan) {
+      plan = subResult.data.plan;
+    }
+    
+    // Get onboarding_completed from restaurant_settings
+    const onboardingCompleted = settingsResult.data?.onboarding_completed ?? false;
+    
+    // Log for debugging if needed
+    if (profileResult.error) {
+      console.error('[Middleware] Profile fetch error:', profileResult.error.message);
+    }
+    if (roleResult.error) {
+      console.error('[Middleware] Role fetch error:', roleResult.error.message);
+    }
+    if (subResult.error) {
+      console.error('[Middleware] Subscription fetch error:', subResult.error.message);
     }
     
     // IMPORTANT: Spread profile first, then override with auth user data
@@ -135,6 +154,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       email: user.email,    // Auth email - in case profile email differs
       role,
       plan,
+      onboarding_completed: onboardingCompleted,
       profile_id: profile?.id,  // Keep profile ID available if needed
     };
   } else {

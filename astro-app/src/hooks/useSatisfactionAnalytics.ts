@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 import { subMonths, startOfMonth, endOfMonth, format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -16,44 +16,54 @@ interface RatingTrend {
   totalReviews: number;
 }
 
-export function useSatisfactionAnalytics() {
-  const { user } = useAuth();
+export function useSatisfactionAnalytics(passedUserId?: string) {
+  const [authUserId, setAuthUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!passedUserId) {
+      supabase.auth.getUser().then(({ data }) => {
+        if (data.user) setAuthUserId(data.user.id);
+      });
+    }
+  }, [passedUserId]);
+
+  const userId = passedUserId || authUserId || '';
 
   // First try order_reviews table
   const { data: orderReviews, isLoading: reviewsLoading } = useQuery({
-    queryKey: ['satisfaction-reviews', user?.id],
+    queryKey: ['satisfaction-reviews', userId],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!userId) return [];
       
       const { data, error } = await supabase
         .from('order_reviews')
         .select('id, rating, comment, created_at')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
       return data || [];
     },
-    enabled: !!user?.id,
+    enabled: !!userId,
   });
 
   // Also fetch orders with review_rating as fallback
   const { data: ordersWithRatings, isLoading: ordersLoading } = useQuery({
-    queryKey: ['satisfaction-orders', user?.id],
+    queryKey: ['satisfaction-orders', userId],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!userId) return [];
       
       const { data, error } = await supabase
         .from('chatbot_orders')
         .select('id, review_rating, heure_de_commande')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .not('review_rating', 'is', null)
         .order('heure_de_commande', { ascending: false });
       
       if (error) throw error;
       return data || [];
     },
-    enabled: !!user?.id,
+    enabled: !!userId,
   });
 
   const isLoading = reviewsLoading || ordersLoading;

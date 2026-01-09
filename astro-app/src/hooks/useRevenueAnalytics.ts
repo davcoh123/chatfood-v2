@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useEffect, useState } from 'react';
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, subMonths, subWeeks, format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -42,41 +42,52 @@ const CATEGORY_PALETTE = [
   '#A855F7', // purple
 ];
 
-export function useRevenueAnalytics() {
-  const { user } = useAuth();
-
+export function useRevenueAnalytics(passedUserId?: string) {
+  const [authUserId, setAuthUserId] = useState<string | null>(null);
+  
+  // Get userId from Supabase auth if not passed
+  useEffect(() => {
+    if (!passedUserId) {
+      supabase.auth.getUser().then(({ data }) => {
+        if (data.user) setAuthUserId(data.user.id);
+      });
+    }
+  }, [passedUserId]);
+  
+  const userId = passedUserId || authUserId;
+  
   const { data: orders, isLoading: ordersLoading } = useQuery({
-    queryKey: ['revenue-orders', user?.id],
+    queryKey: ['revenue-orders', userId],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!userId) return [];
       
       const { data, error } = await supabase
         .from('chatbot_orders')
         .select('id, heure_de_commande, status, price_total, commande_item')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .eq('status', 'delivered')
         .order('heure_de_commande', { ascending: false });
       
       if (error) throw error;
       return data || [];
     },
-    enabled: !!user?.id,
+    enabled: !!userId,
   });
 
   const { data: products } = useQuery({
-    queryKey: ['products-for-revenue', user?.id],
+    queryKey: ['products-for-revenue', userId],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!userId) return [];
       
       const { data, error } = await supabase
         .from('products')
         .select('id, name, category, unit_price')
-        .eq('user_id', user.id);
+        .eq('user_id', userId);
       
       if (error) throw error;
       return data || [];
     },
-    enabled: !!user?.id,
+    enabled: !!userId,
   });
 
   const now = new Date();

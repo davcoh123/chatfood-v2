@@ -1,9 +1,28 @@
-import { useAuth } from '@/contexts/AuthContext';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
-export const useSubscription = () => {
-  const { profile } = useAuth();
+// useSubscription hook - fetches plan from Supabase if not passed
+export const useSubscription = (passedPlan?: string) => {
+  const [fetchedPlan, setFetchedPlan] = useState<string | null>(null);
   
-  const plan = profile?.plan || 'starter';
+  // Fetch plan from Supabase if not passed
+  useEffect(() => {
+    if (!passedPlan) {
+      supabase.auth.getUser().then(async ({ data }) => {
+        if (data.user) {
+          const { data: sub } = await supabase
+            .from('user_subscriptions')
+            .select('plan')
+            .eq('user_id', data.user.id)
+            .maybeSingle();
+          if (sub?.plan) setFetchedPlan(sub.plan);
+        }
+      });
+    }
+  }, [passedPlan]);
+  
+  // Use passed plan, fetched plan, or default to starter
+  const plan = passedPlan || fetchedPlan || 'starter';
   
   // Feature access based on plan
   const canAccessAnalytics = plan === 'pro' || plan === 'premium';

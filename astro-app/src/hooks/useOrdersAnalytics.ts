@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 import { startOfMonth, endOfMonth, format, getDay, getHours, startOfWeek, endOfWeek, subMonths } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -21,24 +21,34 @@ interface WeeklyVolume {
   growth: number;
 }
 
-export function useOrdersAnalytics() {
-  const { user } = useAuth();
+export function useOrdersAnalytics(passedUserId?: string) {
+  const [authUserId, setAuthUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!passedUserId) {
+      supabase.auth.getUser().then(({ data }) => {
+        if (data.user) setAuthUserId(data.user.id);
+      });
+    }
+  }, [passedUserId]);
+
+  const userId = passedUserId || authUserId || '';
 
   const { data: orders, isLoading } = useQuery({
-    queryKey: ['orders-analytics', user?.id],
+    queryKey: ['orders-analytics', userId],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!userId) return [];
       
       const { data, error } = await supabase
         .from('chatbot_orders')
         .select('id, heure_de_commande, status, price_total')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .order('heure_de_commande', { ascending: false });
       
       if (error) throw error;
       return data || [];
     },
-    enabled: !!user?.id,
+    enabled: !!userId,
   });
 
   // Calculate orders this month

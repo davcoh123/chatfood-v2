@@ -1,5 +1,4 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -9,12 +8,13 @@ import { useRestaurantSettings } from '@/hooks/useRestaurantSettings';
 
 interface OnboardingWidgetProps {
   className?: string;
+  userId?: string;
 }
 
-export function OnboardingWidget({ className }: OnboardingWidgetProps) {
-  const navigate = useNavigate();
-  const { steps, currentStep, progressPercent, isLoading, onboardingCompleted } = useOnboardingProgress();
-  const { updateSettings, isUpdating } = useRestaurantSettings();
+export function OnboardingWidget({ className, userId }: OnboardingWidgetProps) {
+  const navigate = (path: string) => window.location.href = path;
+  const { steps, currentStep, progressPercent, isLoading, onboardingCompleted } = useOnboardingProgress(userId);
+  const { updateSettings, isUpdating } = useRestaurantSettings(userId);
 
   // Don't render if already completed or still loading
   if (isLoading || onboardingCompleted) {

@@ -1,0 +1,94 @@
+project_id = "dcwfgxbwpecnjbhrhrib"
+
+[functions.notify-signup]
+verify_jwt = false
+
+[functions.notify-security]
+verify_jwt = false
+
+[functions.admin-change-role]
+verify_jwt = true
+
+[functions.admin-create-user]
+verify_jwt = true
+
+[functions.admin-delete-user]
+verify_jwt = false
+
+[functions.admin-update-email]
+verify_jwt = true
+
+[functions.admin-reset-password]
+verify_jwt = true
+
+[functions.admin-update-profile]
+verify_jwt = true
+
+[functions.admin-toggle-block]
+verify_jwt = true
+
+[functions.admin-export-users]
+verify_jwt = true
+
+[functions.admin-cleanup-logs]
+verify_jwt = true
+
+[functions.admin-get-settings]
+verify_jwt = true
+
+[functions.admin-update-settings]
+verify_jwt = true
+
+[functions.public-get-maintenance]
+verify_jwt = false
+
+[functions.user-change-password]
+verify_jwt = true
+
+[functions.admin-update-subscription]
+verify_jwt = true
+
+[functions.auth-get-client-ip]
+verify_jwt = false
+
+[functions.migrate-restaurant]
+verify_jwt = true
+
+[functions.chatbot-api]
+verify_jwt = false
+
+[functions.exchange-meta-token]
+verify_jwt = true
+
+[functions.trigger-review-request]
+verify_jwt = true
+
+[functions.admin-generate-login-link]
+verify_jwt = true
+
+[functions.admin-revoke-login-link]
+verify_jwt = true
+
+[functions.validate-login-token]
+verify_jwt = false
+
+[functions.admin-register-whatsapp]
+verify_jwt = true
+
+[functions.user-delete-account]
+verify_jwt = true
+
+[functions.stripe-create-account]
+verify_jwt = false
+
+[functions.stripe-account-status]
+verify_jwt = false
+
+[functions.stripe-create-checkout]
+verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.stripe-dashboard-link]
+verify_jwt = false

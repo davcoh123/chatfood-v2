@@ -4,8 +4,12 @@ import { Button } from '@/components/ui/button';
 import { useCatalogue } from '@/hooks/useCatalogue';
 import { CatalogueCreator } from '@/components/dashboard/CatalogueCreator';
 
-const OnboardingStep4: React.FC = () => {
-  const { items: products, isLoading } = useCatalogue();
+interface OnboardingStep4Props {
+  userId: string;
+}
+
+const OnboardingStep4: React.FC<OnboardingStep4Props> = ({ userId }) => {
+  const { items: products, isLoading } = useCatalogue({ userId });
   const [showCreator, setShowCreator] = useState(false);
   
   const hasProducts = products && products.length > 0;
@@ -59,6 +63,7 @@ const OnboardingStep4: React.FC = () => {
       <CatalogueCreator 
         open={showCreator} 
         onOpenChange={setShowCreator}
+        userId={userId}
       />
     </div>
   );

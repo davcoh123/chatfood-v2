@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 
 export interface TicketMessage {
@@ -13,10 +12,18 @@ export interface TicketMessage {
   read_at: string | null;
 }
 
-export const useTicketMessages = (ticketId: string | null) => {
-  const { user } = useAuth();
+export const useTicketMessages = (ticketId: string | null, passedUserId?: string) => {
+  const [userId, setUserId] = useState<string | null>(passedUserId || null);
   const [messages, setMessages] = useState<TicketMessage[]>([]);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!passedUserId) {
+      supabase.auth.getUser().then(({ data }) => {
+        if (data.user) setUserId(data.user.id);
+      });
+    }
+  }, [passedUserId]);
 
   const fetchMessages = async () => {
     if (!ticketId) return;
@@ -44,16 +51,16 @@ export const useTicketMessages = (ticketId: string | null) => {
   };
 
   const sendMessage = async (message: string, senderType: 'user' | 'admin' = 'user') => {
-    if (!ticketId || !user) return false;
+    if (!ticketId || !userId) return false;
 
-    console.debug('[sendMessage] start', { ticketId, senderType, userId: user.id });
+    console.debug('[sendMessage] start', { ticketId, senderType, userId });
 
     try {
       const { error } = await supabase
         .from('ticket_messages')
         .insert({
           ticket_id: ticketId,
-          sender_id: user.id,
+          sender_id: userId,
           sender_type: senderType,
           message
         });
@@ -83,7 +90,7 @@ export const useTicketMessages = (ticketId: string | null) => {
   };
 
   useEffect(() => {
-    if (ticketId && user) {
+    if (ticketId && userId) {
       fetchMessages();
 
       // Subscribe to real-time updates
@@ -109,7 +116,7 @@ export const useTicketMessages = (ticketId: string | null) => {
         supabase.removeChannel(channel);
       };
     }
-  }, [ticketId, user]);
+  }, [ticketId, userId]);
 
   return {
     messages,

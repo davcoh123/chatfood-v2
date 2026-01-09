@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { CreateTicketInput } from '@/schemas/support';
 
@@ -23,21 +22,29 @@ export interface SupportTicket {
   last_message_at: string | null;
 }
 
-export const useSupportTickets = () => {
-  const { user } = useAuth();
+export const useSupportTickets = (passedUserId?: string) => {
+  const [userId, setUserId] = useState<string | null>(passedUserId || null);
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
 
+  useEffect(() => {
+    if (!passedUserId) {
+      supabase.auth.getUser().then(({ data }) => {
+        if (data.user) setUserId(data.user.id);
+      });
+    }
+  }, [passedUserId]);
+
   const fetchUserTickets = async () => {
-    if (!user) return;
+    if (!userId) return;
 
     try {
       setLoading(true);
       const { data, error } = await supabase
         .from('support_tickets')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .order('last_message_at', { ascending: false });
 
       if (error) throw error;
@@ -59,7 +66,7 @@ export const useSupportTickets = () => {
   };
 
   const createTicket = async (data: CreateTicketInput) => {
-    if (!user) {
+    if (!userId) {
       toast({
         title: "Erreur",
         description: "Vous devez être connecté pour créer un ticket",
@@ -69,16 +76,18 @@ export const useSupportTickets = () => {
     }
 
     try {
-      console.debug('[createTicket] start', { userId: user.id });
+      console.debug('[createTicket] start', { userId });
       
-      const email = user.email || '(unknown)';
+      // Get user email
+      const { data: authData } = await supabase.auth.getUser();
+      const email = authData.user?.email || '(unknown)';
       
       // Get user plan directly from user_subscriptions table
       console.debug('[createTicket] fetching plan');
       const { data: sub, error: subError } = await supabase
         .from('user_subscriptions')
         .select('plan')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .maybeSingle();
 
       if (subError) {
@@ -90,7 +99,7 @@ export const useSupportTickets = () => {
 
       // Insert ticket
       console.debug('[createTicket] inserting ticket', { 
-        user_id: user.id, 
+        user_id: userId, 
         email, 
         userPlan, 
         ticket_type: data.ticket_type 
@@ -99,7 +108,7 @@ export const useSupportTickets = () => {
       const { error: insertError } = await supabase
         .from('support_tickets')
         .insert({
-          user_id: user.id,
+          user_id: userId,
           user_email: email,
           user_plan: userPlan,
           ticket_type: data.ticket_type,
@@ -139,7 +148,7 @@ export const useSupportTickets = () => {
   };
 
   useEffect(() => {
-    if (user) {
+    if (userId) {
       fetchUserTickets();
 
       // Subscribe to real-time updates for user's tickets
@@ -151,7 +160,7 @@ export const useSupportTickets = () => {
             event: '*',
             schema: 'public',
             table: 'support_tickets',
-            filter: `user_id=eq.${user.id}`
+            filter: `user_id=eq.${userId}`
           },
           () => {
             fetchUserTickets();
@@ -163,7 +172,7 @@ export const useSupportTickets = () => {
         supabase.removeChannel(channel);
       };
     }
-  }, [user]);
+  }, [userId]);
 
   return {
     tickets,

@@ -1,6 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 
 export interface TicketReview {
@@ -12,12 +11,20 @@ export interface TicketReview {
   created_at: string;
 }
 
-export const useTicketReviews = () => {
-  const { user } = useAuth();
+export const useTicketReviews = (passedUserId?: string) => {
+  const [userId, setUserId] = useState<string | null>(passedUserId || null);
   const [submitting, setSubmitting] = useState(false);
 
+  useEffect(() => {
+    if (!passedUserId) {
+      supabase.auth.getUser().then(({ data }) => {
+        if (data.user) setUserId(data.user.id);
+      });
+    }
+  }, [passedUserId]);
+
   const submitReview = async (ticketId: string, rating: number, comment?: string) => {
-    if (!user) {
+    if (!userId) {
       toast({
         title: "Erreur",
         description: "Vous devez être connecté",
@@ -34,7 +41,7 @@ export const useTicketReviews = () => {
         .from('ticket_reviews')
         .upsert({
           ticket_id: ticketId,
-          user_id: user.id,
+          user_id: userId,
           rating,
           comment: comment || null
         }, {

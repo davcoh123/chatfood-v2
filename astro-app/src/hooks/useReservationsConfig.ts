@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
 
 export interface Reservation {
   id: string;
@@ -31,9 +31,18 @@ interface WebhookResponse {
   }[];
 }
 
-export const useReservationsConfig = (view: ViewType, userId?: string) => {
-  const { user } = useAuth();
-  const targetUserId = userId || user?.id;
+export const useReservationsConfig = (view: ViewType, passedUserId?: string) => {
+  const [authUserId, setAuthUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!passedUserId) {
+      supabase.auth.getUser().then(({ data }) => {
+        if (data.user) setAuthUserId(data.user.id);
+      });
+    }
+  }, [passedUserId]);
+
+  const targetUserId = passedUserId || authUserId || '';
 
   // Hardcoded webhook URL for all reservations
   const webhookUrl = 'https://n8n.chatfood.fr/webhook/full-reservations-mois-chatfood-demo';
