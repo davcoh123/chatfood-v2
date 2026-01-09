@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Profile {
@@ -15,9 +14,9 @@ interface Profile {
 }
 
 interface AuthContextType {
-  user: User | null;
+  user: any | null;
   profile: Profile | null;
-  session: Session | null;
+  session: any | null;
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
   signUp: (email: string, password: string, firstName?: string, lastName?: string) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
@@ -37,8 +36,8 @@ export const useAuth = () => {
 
 interface AuthProviderProps {
   children: React.ReactNode;
-  initialUser?: User | null;
-  initialSession?: Session | null;
+  initialUser?: any | null;
+  initialSession?: any | null;
   initialProfile?: Profile | null;
 }
 
@@ -60,9 +59,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   initialSession = null, 
   initialProfile = null 
 }) => {
-  const [user, setUser] = useState<User | null>(initialUser);
+  const [user, setUser] = useState<any | null>(initialUser);
   const [profile, setProfile] = useState<Profile | null>(initialProfile);
-  const [session, setSession] = useState<Session | null>(initialSession);
+  const [session, setSession] = useState<any | null>(initialSession);
   const [loading, setLoading] = useState(!initialUser);
 
   const fetchProfile = async (userId: string) => {

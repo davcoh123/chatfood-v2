@@ -1,7 +1,6 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
-import { User, Session } from '@supabase/supabase-js';
 
 interface Profile {
   id: string;
@@ -17,8 +16,8 @@ interface Profile {
 
 interface DashboardRootProps {
   children: React.ReactNode;
-  user: User | null;
-  session: Session | null;
+  user: any | null;
+  session: any | null;
   profile: Profile | null;
 }
 
