@@ -63,6 +63,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const [profile, setProfile] = useState<Profile | null>(initialProfile);
   const [session, setSession] = useState<any | null>(initialSession);
   const [loading, setLoading] = useState(!initialUser);
+  
+  // Debug logs
+  console.log('[AuthContext] Initialized with:', {
+    hasInitialUser: !!initialUser,
+    hasInitialProfile: !!initialProfile,
+    profileUserId: initialProfile?.user_id,
+  });
 
   const fetchProfile = async (userId: string) => {
     try {

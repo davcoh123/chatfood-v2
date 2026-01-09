@@ -22,12 +22,18 @@ export const useCatalogue = () => {
   const queryClient = useQueryClient();
   const { profile } = useAuth();
   const userId = profile?.user_id || '';
+  
+  // Debug logs
+  console.log('[useCatalogue] Profile:', { profile, userId });
 
   // Récupérer les produits depuis Supabase
   const { data: items, isLoading: itemsLoading, error: itemsError } = useQuery<CatalogueItem[]>({
     queryKey: ['catalogue-items', userId],
     queryFn: async () => {
-      if (!userId) return [];
+      if (!userId) {
+        console.warn('[useCatalogue] No userId, returning empty array');
+        return [];
+      }
 
       const { data, error } = await supabase
         .from('products')

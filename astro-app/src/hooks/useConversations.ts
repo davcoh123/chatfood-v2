@@ -28,11 +28,17 @@ export const useConversations = () => {
   const { toast } = useToast();
   const { profile } = useAuth();
   const userId = profile?.user_id || '';
+  
+  // Debug logs
+  console.log('[useConversations] Profile:', { profile, userId });
 
   const { data, isLoading, error, refetch } = useQuery<{ conversations: Conversation[] }>({
     queryKey: ['conversations', userId],
     queryFn: async () => {
-      if (!userId) return { conversations: [] };
+      if (!userId) {
+        console.warn('[useConversations] No userId, returning empty conversations');
+        return { conversations: [] };
+      }
 
       const { data: messages, error } = await supabase
         .from('chatbot_messages')

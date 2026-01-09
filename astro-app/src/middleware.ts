@@ -149,11 +149,22 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
     
     // Build complete profile object for AuthContext
+    // CRITICAL: Ensure profile has user_id for React hooks
     const fullProfile = profile ? {
       ...profile,
+      user_id: user.id,  // CRITICAL: Set user_id from auth.user.id
       role,
       plan,
     } : null;
+    
+    // Log for debugging in production
+    console.log('[Middleware] Auth data:', {
+      userId: user.id,
+      profileUserId: fullProfile?.user_id,
+      hasProfile: !!fullProfile,
+      role,
+      plan,
+    });
     
     // Store in locals
     (locals as any).profile = fullProfile;
