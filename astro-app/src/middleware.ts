@@ -108,15 +108,21 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // Inject user into locals for SSR pages
   if (user) {
-    // Get profile if user exists
+    // Get profile, role and subscription if user exists
     let profile = null;
+    let role = 'user';
+    let plan = 'starter';
+    
     try {
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-      profile = data;
+      const [profileResult, roleResult, subResult] = await Promise.all([
+        supabase.from('profiles').select('*').eq('user_id', user.id).single(),
+        supabase.from('user_roles').select('role').eq('user_id', user.id).single(),
+        supabase.from('user_subscriptions').select('plan').eq('user_id', user.id).single(),
+      ]);
+      
+      profile = profileResult.data;
+      role = roleResult.data?.role || 'user';
+      plan = subResult.data?.plan || 'starter';
     } catch (e) {
       // Profile might not exist yet
     }
@@ -124,6 +130,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
     (locals as any).user = {
       id: user.id,
       email: user.email,
+      role,
+      plan,
       ...profile,
     };
   } else {

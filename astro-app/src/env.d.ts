@@ -3,13 +3,8 @@
 interface UserWithProfile {
   id: string;
   email?: string;
-  profile?: {
-    id: string;
-    user_id: string;
-    email: string;
-    first_name?: string;
-    last_name?: string;
-  };
+  first_name?: string;
+  last_name?: string;
   role: 'admin' | 'user';
   plan: 'starter' | 'pro' | 'premium';
 }
@@ -17,6 +12,6 @@ interface UserWithProfile {
 declare namespace App {
   interface Locals {
     user: UserWithProfile | null;
-    session: import('@supabase/supabase-js').Session | null;
+    supabase: import('@supabase/supabase-js').SupabaseClient;
   }
 }

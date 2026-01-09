@@ -21,29 +21,29 @@ const thirtyDaysAgo = new Date();
 thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
 const { count: ordersCount } = await supabase
-  .from('orders')
+  .from('chatbot_orders')
   .select('*', { count: 'exact', head: true })
   .eq('user_id', user.id)
-  .gte('created_at', thirtyDaysAgo.toISOString());
+  .gte('heure_de_commande', thirtyDaysAgo.toISOString());
 
-// Fetch catalogue items count
+// Fetch catalogue items count (products)
 const { count: productsCount } = await supabase
-  .from('menus')
+  .from('products')
   .select('*', { count: 'exact', head: true })
   .eq('user_id', user.id);
 
 // Fetch reservations count (upcoming)
 const { count: reservationsCount } = await supabase
-  .from('reservations')
+  .from('chatbot_reservations')
   .select('*', { count: 'exact', head: true })
   .eq('user_id', user.id)
-  .gte('date', new Date().toISOString().split('T')[0]);
+  .gte('reservation_datetime', new Date().toISOString());
 
 // Calculate onboarding progress
 const onboardingSteps = [
   { name: 'Nom du restaurant', completed: !!settings?.restaurant_name },
-  { name: 'Adresse', completed: !!settings?.address },
-  { name: 'Téléphone', completed: !!settings?.phone },
+  { name: 'Adresse', completed: !!settings?.address_street },
+  { name: 'Téléphone', completed: !!settings?.phone_number_id },
   { name: 'Horaires', completed: !!settings?.opening_hours },
   { name: 'Catalogue', completed: (productsCount || 0) > 0 },
 ];

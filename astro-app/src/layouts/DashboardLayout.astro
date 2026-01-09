@@ -1,22 +1,27 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getUser, getUserWithProfile } from '@/lib/supabase-server';
 
-// Auth check - redirect to login if not authenticated
-const user = await getUser(Astro);
+// Get user from middleware locals (already authenticated)
+const user = (Astro.locals as any).user;
+const supabase = (Astro.locals as any).supabase;
+
+// Redirect to login if not authenticated
 if (!user) {
   return Astro.redirect('/login');
 }
 
-// Get profile to check role and plan
-const { profile } = await getUserWithProfile(Astro);
-if (!profile) {
-  return Astro.redirect('/login');
-}
+// Get profile data - user from middleware already has profile info merged
+const profile = {
+  first_name: user.first_name,
+  last_name: user.last_name,
+  email: user.email,
+  role: user.role || 'user',
+  plan: user.plan || 'starter',
+};
 
 // Redirect admin to admin dashboard
 if (profile.role === 'admin') {
-  return Astro.redirect('/admin/dashboard');
+  return Astro.redirect('/admin');
 }
 
 interface Props {
