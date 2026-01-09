@@ -129,22 +129,10 @@
     left: 100%;
   }
 
-  .animate-fade-in {
-    opacity: 0;
-    animation: fadeIn 0.8s ease-out forwards;
-  }
-  
-  .animate-slide-up {
-    opacity: 0;
-    animation: slideUp 0.8s ease-out forwards;
-  }
-
-  .animate-float {
-    animation: float 3s ease-in-out infinite;
-  }
-
+  /* Smooth animations */
   .hover-lift {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform, box-shadow;
   }
   
   .hover-lift:hover {
@@ -153,19 +141,69 @@
   }
 
   .cta-magnetic {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
     overflow: hidden;
+    will-change: transform, box-shadow;
   }
   
   .cta-magnetic:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px hsl(var(--primary) / 0.4);
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 16px 40px -8px hsl(var(--primary) / 0.6);
+  }
+
+  .cta-magnetic::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+    transform: translate(-50%, -50%);
+    transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1), height 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .cta-magnetic:hover::before {
+    width: 350px;
+    height: 350px;
+  }
+
+  .cta-magnetic:active {
+    transform: translateY(-2px) scale(1.02);
+    transition-duration: 0.1s;
   }
 
   .animation-delay-200 { animation-delay: 0.2s; }
   .animation-delay-300 { animation-delay: 0.3s; }
   .animation-delay-400 { animation-delay: 0.4s; }
+
+  /* Plasma border effect */
+  .plasma-border {
+    background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.1), transparent);
+    background-size: 200% 100%;
+    animation: plasma-flow 3s ease infinite;
+  }
+
+  @keyframes plasma-flow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  /* Glow pulse for CTA */
+  .animate-glow-pulse {
+    animation: glow-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% {
+      box-shadow: 0 4px 20px hsl(var(--primary) / 0.3);
+    }
+    50% {
+      box-shadow: 0 4px 30px hsl(var(--primary) / 0.6), 0 0 40px hsl(var(--primary) / 0.4);
+    }
+  }
 }
 
 @keyframes fadeIn {
@@ -201,8 +239,28 @@
   animation: marquee var(--duration, 40s) linear infinite;
 }
 
-/* View Transitions */
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation-duration: 0.3s;
+/* Prevent text from disappearing after page load */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Force animations to work properly and persist after completion */
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
+  opacity: 0; /* Start hidden */
+}
+
+.animate-slide-up {
+  animation: slideUp 0.8s ease-out forwards;
+  opacity: 0; /* Start hidden */
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
 }
