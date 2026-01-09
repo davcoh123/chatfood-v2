@@ -127,12 +127,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
       // Profile might not exist yet
     }
     
+    // IMPORTANT: Spread profile first, then override with auth user data
+    // to avoid profile.id overwriting user.id (auth ID)
     (locals as any).user = {
-      id: user.id,
-      email: user.email,
+      ...profile,
+      id: user.id,          // Auth user ID - MUST come after spread to not be overwritten
+      email: user.email,    // Auth email - in case profile email differs
       role,
       plan,
-      ...profile,
+      profile_id: profile?.id,  // Keep profile ID available if needed
     };
   } else {
     (locals as any).user = null;
