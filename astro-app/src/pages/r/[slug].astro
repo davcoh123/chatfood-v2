@@ -1,0 +1,428 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { createSupabaseAPIClient } from '@/lib/supabase-server';
+
+// Get slug from params
+const { slug } = Astro.params;
+
+// Fetch restaurant data server-side for SEO
+const supabase = createSupabaseAPIClient();
+
+// Fetch restaurant settings from public view
+const { data: restaurant, error: restaurantError } = await supabase
+  .from('public_restaurant_view')
+  .select('restaurant_name, slug, address_street, address_postal_code, address_city, latitude, longitude, opening_hours, assets, user_id, theme_color, cover_image_url, featured_categories, category_order, online_orders_enabled, chatbot_active')
+  .eq('slug', slug)
+  .maybeSingle();
+
+// If no restaurant found, return 404
+if (!restaurant || restaurantError) {
+  return Astro.redirect('/404');
+}
+
+// Type definitions
+interface OpeningHours {
+  day: string;
+  slot1: string;
+  slot2: string;
+}
+
+interface RestaurantAsset {
+  url: string;
+  filename: string;
+  description?: string;
+  type?: string;
+}
+
+// Parse JSON fields
+const openingHours = (restaurant.opening_hours as unknown as OpeningHours[]) || [];
+const assets = (restaurant.assets as unknown as RestaurantAsset[]) || [];
+
+// Fetch products for this restaurant
+const { data: productsData } = await supabase
+  .from('products')
+  .select('id, name, description, category, unit_price, currency, allergens, tags, is_active')
+  .eq('user_id', restaurant.user_id)
+  .eq('is_active', true)
+  .order('category')
+  .order('sort_order');
+
+const products = productsData || [];
+
+// Fetch reviews for this restaurant
+const { data: reviewsData } = await supabase
+  .from('order_reviews')
+  .select('id, rating, comment, created_at, order_id')
+  .eq('order_id', restaurant.user_id)
+  .not('rating', 'is', null)
+  .order('created_at', { ascending: false })
+  .limit(20);
+
+const reviews = reviewsData || [];
+
+// Calculate rating stats
+const validRatings = reviews.filter(r => r.rating !== null);
+const averageRating = validRatings.length > 0 
+  ? validRatings.reduce((sum, r) => sum + (r.rating || 0), 0) / validRatings.length 
+  : null;
+const reviewCount = validRatings.length;
+
+// Extract unique categories
+const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
+
+// Check if restaurant is currently open
+function isCurrentlyOpen(): boolean {
+  if (!openingHours || openingHours.length === 0) return false;
+  
+  const now = new Date();
+  const days = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+  const currentDay = days[now.getDay()];
+  const currentTime = now.getHours() * 60 + now.getMinutes();
+  
+  const todayHours = openingHours.find(h => h.day.toLowerCase() === currentDay);
+  if (!todayHours) return false;
+  
+  const parseTimeRange = (range: string | null): [number, number] | null => {
+    if (!range) return null;
+    const match = range.match(/(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/);
+    if (!match) return null;
+    const start = parseInt(match[1]) * 60 + parseInt(match[2]);
+    const end = parseInt(match[3]) * 60 + parseInt(match[4]);
+    return [start, end];
+  };
+  
+  const slot1 = parseTimeRange(todayHours.slot1);
+  const slot2 = parseTimeRange(todayHours.slot2);
+  
+  if (slot1 && currentTime >= slot1[0] && currentTime <= slot1[1]) return true;
+  if (slot2 && currentTime >= slot2[0] && currentTime <= slot2[1]) return true;
+  
+  return false;
+}
+
+const isOpen = isCurrentlyOpen();
+
+// SEO metadata
+const pageTitle = restaurant.restaurant_name 
+  ? `${restaurant.restaurant_name} - Commander sur WhatsApp | ChatFood`
+  : 'Restaurant | ChatFood';
+
+const pageDescription = restaurant.restaurant_name
+  ? `Découvrez le menu de ${restaurant.restaurant_name} et commandez facilement via WhatsApp. ${categories.slice(0, 3).join(', ')}.`
+  : 'Découvrez notre menu et commandez facilement via WhatsApp.';
+
+const fullAddress = [
+  restaurant.address_street,
+  restaurant.address_postal_code,
+  restaurant.address_city
+].filter(Boolean).join(', ');
+
+const canonicalUrl = `https://chatfood.fr/r/${slug}`;
+
+// Image for OG
+const bannerAsset = assets.find(a => 
+  a.type === 'banner' || a.description?.toLowerCase().includes('banner') || a.description?.toLowerCase().includes('bannière')
+);
+const ogImageUrl = restaurant.cover_image_url 
+  || bannerAsset?.url 
+  || assets[0]?.url 
+  || 'https://chatfood.fr/og-default.jpg';
+
+// Group products by category
+const productsByCategory = products.reduce((acc, product) => {
+  const cat = product.category || 'Autres';
+  if (!acc[cat]) acc[cat] = [];
+  acc[cat].push(product);
+  return acc;
+}, {} as Record<string, typeof products>);
+
+// Format price
+const formatPrice = (price: number, currency = 'EUR') => {
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: currency,
+  }).format(price);
+};
+
+// Structured data for SEO
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "Restaurant",
+  "name": restaurant.restaurant_name,
+  "image": ogImageUrl,
+  "url": canonicalUrl,
+  "address": fullAddress ? {
+    "@type": "PostalAddress",
+    "streetAddress": restaurant.address_street,
+    "postalCode": restaurant.address_postal_code,
+    "addressLocality": restaurant.address_city,
+    "addressCountry": "FR"
+  } : undefined,
+  "geo": restaurant.latitude && restaurant.longitude ? {
+    "@type": "GeoCoordinates",
+    "latitude": restaurant.latitude,
+    "longitude": restaurant.longitude
+  } : undefined,
+  "aggregateRating": averageRating ? {
+    "@type": "AggregateRating",
+    "ratingValue": averageRating.toFixed(1),
+    "reviewCount": reviewCount
+  } : undefined,
+  "servesCuisine": categories.slice(0, 5),
+  "hasMenu": {
+    "@type": "Menu",
+    "hasMenuSection": Object.entries(productsByCategory).map(([category, items]) => ({
+      "@type": "MenuSection",
+      "name": category,
+      "hasMenuItem": items.map(item => ({
+        "@type": "MenuItem",
+        "name": item.name,
+        "description": item.description,
+        "offers": {
+          "@type": "Offer",
+          "price": item.unit_price,
+          "priceCurrency": item.currency || "EUR"
+        }
+      }))
+    }))
+  }
+};
+---
+
+<BaseLayout title={pageTitle} description={pageDescription}>
+  <!-- Custom OG tags for restaurant -->
+  <meta slot="head" property="og:title" content={pageTitle} />
+  <meta slot="head" property="og:description" content={pageDescription} />
+  <meta slot="head" property="og:type" content="restaurant" />
+  <meta slot="head" property="og:url" content={canonicalUrl} />
+  <meta slot="head" property="og:image" content={ogImageUrl} />
+  <meta slot="head" property="og:image:width" content="1200" />
+  <meta slot="head" property="og:image:height" content="630" />
+  <meta slot="head" name="twitter:card" content="summary_large_image" />
+  <meta slot="head" name="twitter:image" content={ogImageUrl} />
+  {restaurant.latitude && <meta slot="head" property="place:location:latitude" content={String(restaurant.latitude)} />}
+  {restaurant.longitude && <meta slot="head" property="place:location:longitude" content={String(restaurant.longitude)} />}
+  
+  <!-- JSON-LD structured data -->
+  <script slot="json-ld" type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+  
+  <!-- Apply theme color if set -->
+  {restaurant.theme_color && (
+    <style slot="head" set:html={`
+      :root {
+        --primary: ${restaurant.theme_color};
+      }
+    `} />
+  )}
+
+  <div class="min-h-screen bg-background pb-24">
+    <!-- Banner Image -->
+    {ogImageUrl && (
+      <div class="relative h-48 md:h-64 lg:h-80 w-full overflow-hidden">
+        <img 
+          src={ogImageUrl} 
+          alt={`Bannière de ${restaurant.restaurant_name}`}
+          class="w-full h-full object-cover"
+          loading="eager"
+          fetchpriority="high"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+      </div>
+    )}
+
+    <!-- Restaurant Header -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-10">
+      <div class="bg-card rounded-xl shadow-lg p-6 border">
+        <div class="flex flex-col md:flex-row gap-6">
+          <!-- Restaurant Logo/Avatar -->
+          {assets[0]?.url && (
+            <div class="w-24 h-24 md:w-32 md:h-32 rounded-xl overflow-hidden border-4 border-background shadow-md flex-shrink-0">
+              <img 
+                src={assets[0].url} 
+                alt={restaurant.restaurant_name || 'Restaurant'}
+                class="w-full h-full object-cover"
+                loading="eager"
+              />
+            </div>
+          )}
+          
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-foreground truncate">
+                  {restaurant.restaurant_name}
+                </h1>
+                
+                {fullAddress && (
+                  <p class="text-muted-foreground mt-1 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                    {fullAddress}
+                  </p>
+                )}
+              </div>
+              
+              <!-- Status badge -->
+              <span class={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${isOpen ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}`}>
+                {isOpen ? 'Ouvert' : 'Fermé'}
+              </span>
+            </div>
+            
+            <!-- Rating -->
+            {averageRating && (
+              <div class="flex items-center gap-2 mt-3">
+                <div class="flex items-center">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      width="16" 
+                      height="16" 
+                      viewBox="0 0 24 24" 
+                      fill={star <= Math.round(averageRating) ? 'currentColor' : 'none'}
+                      stroke="currentColor" 
+                      stroke-width="2"
+                      class={star <= Math.round(averageRating) ? 'text-yellow-500' : 'text-muted-foreground'}
+                    >
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                  ))}
+                </div>
+                <span class="text-sm text-muted-foreground">
+                  {averageRating.toFixed(1)} ({reviewCount} avis)
+                </span>
+              </div>
+            )}
+            
+            <!-- Categories -->
+            {categories.length > 0 && (
+              <div class="flex flex-wrap gap-2 mt-3">
+                {categories.slice(0, 5).map((cat) => (
+                  <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium bg-muted text-muted-foreground">
+                    {cat}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="grid lg:grid-cols-3 gap-8">
+        <!-- Menu Section -->
+        <div class="lg:col-span-2" id="menu">
+          <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
+            Notre Menu
+          </h2>
+          
+          {Object.entries(productsByCategory).map(([category, items]) => (
+            <div class="mb-8">
+              <h3 class="text-lg font-semibold mb-4 text-foreground border-b pb-2">{category}</h3>
+              <div class="space-y-4">
+                {items.map((product) => (
+                  <div class="bg-card rounded-lg p-4 border hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-start gap-4">
+                      <div class="flex-1 min-w-0">
+                        <h4 class="font-medium text-foreground">{product.name}</h4>
+                        {product.description && (
+                          <p class="text-sm text-muted-foreground mt-1 line-clamp-2">{product.description}</p>
+                        )}
+                        {product.allergens && product.allergens.length > 0 && (
+                          <p class="text-xs text-muted-foreground mt-2">
+                            Allergènes: {product.allergens.join(', ')}
+                          </p>
+                        )}
+                      </div>
+                      <span class="font-semibold text-primary whitespace-nowrap">
+                        {formatPrice(product.unit_price, product.currency || 'EUR')}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+          
+          {products.length === 0 && (
+            <div class="text-center py-12 text-muted-foreground">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4 opacity-50"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
+              <p>Le menu sera bientôt disponible</p>
+            </div>
+          )}
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="space-y-6">
+          <!-- Opening Hours -->
+          {openingHours.length > 0 && (
+            <div class="bg-card rounded-lg p-6 border">
+              <h3 class="font-semibold mb-4 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Horaires d'ouverture
+              </h3>
+              <div class="space-y-2 text-sm">
+                {openingHours.map((hours) => (
+                  <div class="flex justify-between">
+                    <span class="capitalize text-muted-foreground">{hours.day}</span>
+                    <span class="text-foreground">
+                      {hours.slot1 || hours.slot2 
+                        ? [hours.slot1, hours.slot2].filter(Boolean).join(' / ')
+                        : 'Fermé'
+                      }
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          <!-- Location -->
+          {fullAddress && (
+            <div class="bg-card rounded-lg p-6 border">
+              <h3 class="font-semibold mb-4 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                Adresse
+              </h3>
+              <p class="text-sm text-muted-foreground">{fullAddress}</p>
+              {restaurant.latitude && restaurant.longitude && (
+                <a 
+                  href={`https://www.google.com/maps/search/?api=1&query=${restaurant.latitude},${restaurant.longitude}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-1 text-sm text-primary hover:underline mt-3"
+                >
+                  Voir sur Google Maps
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
+                </a>
+              )}
+            </div>
+          )}
+          
+          <!-- WhatsApp CTA - This will be enhanced with React island -->
+          {restaurant.chatbot_active && (
+            <div class="bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg p-6 border border-primary/20">
+              <h3 class="font-semibold mb-2 text-foreground">Commander via WhatsApp</h3>
+              <p class="text-sm text-muted-foreground mb-4">
+                Discutez avec notre assistant IA pour passer commande facilement
+              </p>
+              <a 
+                href={`https://wa.me/?text=Bonjour, je souhaite passer commande chez ${restaurant.restaurant_name}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center justify-center gap-2 w-full rounded-md text-sm font-medium bg-[#25D366] text-white hover:bg-[#20BD5A] h-11 px-4 transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                Commander sur WhatsApp
+              </a>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Client-side hydration for interactive features will be added here -->
+  <div id="restaurant-app" data-slug={slug} data-restaurant={JSON.stringify(restaurant)} data-products={JSON.stringify(products)}></div>
+</BaseLayout>

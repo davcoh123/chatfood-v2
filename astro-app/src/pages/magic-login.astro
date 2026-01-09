@@ -1,0 +1,24 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import MagicLoginHandler from '@/components/react/MagicLoginHandler';
+
+const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+
+// Get token from URL
+const url = new URL(Astro.request.url);
+const token = url.searchParams.get('token');
+---
+
+<BaseLayout
+  title="Connexion magique - ChatFood"
+  description="Validation de votre lien de connexion ChatFood"
+  canonical="/magic-login"
+>
+  <MagicLoginHandler 
+    client:load 
+    supabaseUrl={SUPABASE_URL}
+    supabaseAnonKey={SUPABASE_ANON_KEY}
+    token={token}
+  />
+</BaseLayout>

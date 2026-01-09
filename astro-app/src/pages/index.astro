@@ -1,0 +1,278 @@
+---
+import PublicLayout from '@/layouts/PublicLayout.astro';
+
+// Hero image - will be in public folder
+const heroImageUrl = '/images/hero-whatsapp-restaurant.jpg';
+
+const benefits = [
+  {
+    icon: 'MessageCircle',
+    title: 'IA conversationnelle',
+    description: 'ChatFood comprend et répond naturellement comme un vrai serveur',
+  },
+  {
+    icon: 'Clock',
+    title: 'Disponible 24/7',
+    description: 'Vos clients commandent à toute heure, même la nuit',
+  },
+  {
+    icon: 'Smartphone',
+    title: 'Configuration express',
+    description: 'Opérationnel en 30 minutes, formation incluse',
+  },
+  {
+    icon: 'TrendingUp',
+    title: 'Croissance garantie',
+    description: 'Augmentez vos commandes de 150% en moyenne',
+  },
+];
+
+const steps = [
+  {
+    step: '01',
+    title: 'Configuration IA',
+    description: 'Notre équipe configure ChatFood avec votre menu, votre style et vos spécialités en 30 minutes',
+    icon: 'Zap',
+  },
+  {
+    step: '02',
+    title: 'Lancement intelligent',
+    description: 'Vos clients découvrent votre nouveau serveur IA via votre numéro WhatsApp habituel',
+    icon: 'MessageCircle',
+  },
+  {
+    step: '03',
+    title: 'Croissance automatique',
+    description: 'ChatFood apprend de chaque interaction et optimise vos ventes 24h/24',
+    icon: 'TrendingUp',
+  },
+];
+
+// Avatar URLs for social proof
+const avatarUrls = [
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=40&h=40&fit=crop&crop=face',
+];
+
+const iconMap: Record<string, string> = {
+  MessageCircle: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-12 w-12 text-primary mx-auto mb-4"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>`,
+  Clock: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-12 w-12 text-primary mx-auto mb-4"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+  Smartphone: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-12 w-12 text-primary mx-auto mb-4"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>`,
+  TrendingUp: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-12 w-12 text-primary mx-auto mb-4"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>`,
+};
+
+const stepIconMap: Record<string, string> = {
+  Zap: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-8 w-8 text-primary"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+  MessageCircle: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-8 w-8 text-primary"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>`,
+  TrendingUp: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-8 w-8 text-primary"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>`,
+};
+---
+
+<PublicLayout 
+  title="ChatFood - Assistant IA WhatsApp pour Restaurants" 
+  description="ChatFood révolutionne vos commandes WhatsApp avec une IA conversationnelle. Automatisez vos commandes, augmentez vos ventes de 150%. Disponible 24/7."
+>
+  <slot name="head">
+    <link rel="preload" as="image" href={heroImageUrl} />
+  </slot>
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json" slot="json-ld" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "ChatFood",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "WhatsApp",
+    "description": "Assistant IA conversationnel pour restaurants via WhatsApp",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "EUR",
+      "availability": "https://schema.org/InStock"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "ratingCount": "127"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "ChatFood SAS",
+      "url": "https://chatfood.fr"
+    }
+  })} />
+
+  <!-- Hero Section -->
+  <section class="py-20 lg:py-32 bg-gradient-to-br from-background to-muted/20">
+    <div class="container mx-auto px-4">
+      <div class="grid lg:grid-cols-2 gap-12 items-center">
+        <div class="max-w-2xl">
+          <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-sm font-semibold bg-primary/10 text-primary mb-6 animate-bounce pulse-glow">
+            🤖 IA Nouvelle Génération
+          </span>
+          <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-6 animate-fade-in">
+            <span class="bg-gradient-to-r from-primary via-primary-light to-primary bg-clip-text text-transparent">
+              ChatFood
+            </span>
+            révolutionne vos commandes WhatsApp
+          </h1>
+          <p class="text-lg md:text-xl text-muted-foreground mb-8 leading-relaxed animate-fade-in animation-delay-200">
+            Notre assistant IA conversationnel gère intelligemment toutes vos commandes. Il comprend, conseille et
+            prend les commandes comme votre meilleur serveur.
+          </p>
+
+          <div class="flex flex-col sm:flex-row gap-4 mb-8 animate-fade-in animation-delay-400">
+            <a href="/offres" class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90 h-11 px-8 rounded-md cta-magnetic animate-glow-pulse">
+              Découvrir ChatFood
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+            <a href="/demo#chatfood-assistant" class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-primary/30 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 text-primary hover:bg-primary/10 h-11 px-8 rounded-md hover-lift plasma-border">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+              Voir la démo
+            </a>
+          </div>
+
+          <div class="flex items-center gap-6 text-sm text-muted-foreground">
+            <div class="flex items-center gap-2">
+              <div class="flex -space-x-3">
+                {avatarUrls.map((url) => (
+                  <img 
+                    src={url} 
+                    alt="" 
+                    width="32" 
+                    height="32" 
+                    class="rounded-full border-2 border-background"
+                    loading="lazy"
+                  />
+                ))}
+                <span class="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-xs font-semibold border-2 border-background">
+                  +5
+                </span>
+              </div>
+              <span>restaurants</span>
+            </div>
+            <div class="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-yellow-500 mr-1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <span>4.9/5 étoiles</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="relative animate-float">
+          <div class="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary-light/20 rounded-2xl blur-3xl transform rotate-6"></div>
+          <img
+            src={heroImageUrl}
+            alt="WhatsApp bot pour restaurant - Interface de commande ChatFood"
+            width="512"
+            height="288"
+            fetchpriority="high"
+            class="relative z-10 rounded-2xl shadow-2xl w-full max-w-lg mx-auto hover-lift"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits Section -->
+  <section class="py-20 bg-muted/30">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-16 animate-fade-in">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">
+          Pourquoi choisir <span class="text-primary">ChatFood</span> ?
+        </h2>
+        <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
+          L'assistant IA le plus avancé du marché, pensé par et pour les restaurateurs
+        </p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        {benefits.map((benefit, index) => (
+          <div 
+            class="rounded-lg border bg-card text-card-foreground shadow-sm text-center hover:shadow-xl transition-all duration-500 hover:scale-105 animate-slide-up"
+            style={`animation-delay: ${index * 0.1}s`}
+          >
+            <div class="flex flex-col space-y-1.5 p-6">
+              <Fragment set:html={iconMap[benefit.icon]} />
+              <h3 class="text-lg font-semibold leading-none tracking-tight">{benefit.title}</h3>
+            </div>
+            <div class="p-6 pt-0">
+              <p class="text-sm text-muted-foreground">{benefit.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="py-20">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-16 animate-fade-in">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">
+          Comment <span class="text-primary">ChatFood</span> transforme votre restaurant ?
+        </h2>
+        <p class="text-lg text-muted-foreground">En 3 étapes simples, votre restaurant devient ultra-moderne</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+        {steps.map((item, index) => (
+          <div
+            class="text-center animate-slide-up p-6 rounded-xl transition-all duration-500"
+            style={`animation-delay: ${index * 0.2}s`}
+          >
+            <div class="w-20 h-20 bg-gradient-to-br from-primary/10 to-primary-light/20 rounded-full flex items-center justify-center mx-auto mb-6 hover:scale-110 transition-transform duration-300">
+              <Fragment set:html={stepIconMap[item.icon]} />
+            </div>
+            <div class="text-4xl font-bold text-primary/20 mb-2">{item.step}</div>
+            <h3 class="text-xl font-semibold mb-3">{item.title}</h3>
+            <p class="text-muted-foreground leading-relaxed">{item.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials placeholder - will be React island -->
+  <section class="py-20 bg-muted/30">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">
+          Ils font confiance à <span class="text-primary">ChatFood</span>
+        </h2>
+        <p class="text-lg text-muted-foreground">
+          Découvrez les témoignages de nos restaurateurs partenaires
+        </p>
+      </div>
+      
+      <div id="testimonials-container" class="min-h-[200px]">
+        <div class="flex justify-center items-center py-12">
+          <p class="text-muted-foreground">Chargement des témoignages...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-20 bg-gradient-to-r from-primary/5 to-primary-light/5">
+    <div class="container mx-auto px-4 text-center animate-fade-in">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">
+        Prêt à découvrir <span class="text-primary">ChatFood</span> ?
+      </h2>
+      <p class="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+        Paiement mensuel sans engagement • Installation offerte • Support expert français
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/offres" class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90 h-11 px-8 rounded-md cta-magnetic animate-glow-pulse">
+          Découvrir nos offres
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </a>
+        <a href="/contact" class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-primary/30 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 text-primary hover:bg-primary/10 h-11 px-8 rounded-md hover-lift plasma-border">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+          Parler à un expert
+        </a>
+      </div>
+    </div>
+  </section>
+</PublicLayout>

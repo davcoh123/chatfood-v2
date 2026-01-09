@@ -1,0 +1,129 @@
+---
+/**
+ * Footer Component - Static Astro version
+ * 
+ * Fully server-rendered, no JavaScript needed.
+ */
+
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="bg-gradient-to-br from-muted/50 to-background border-t">
+  <div class="container mx-auto px-4 py-16">
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <!-- Company Info -->
+      <div class="space-y-4">
+        <a href="/" class="flex items-center space-x-2">
+          <svg class="h-8 w-8 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>
+          </svg>
+          <span class="text-xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent">
+            ChatFood
+          </span>
+        </a>
+        <p class="text-muted-foreground text-sm leading-relaxed">
+          L'assistant IA conversationnel qui révolutionne la prise de commandes pour les restaurants. Plus intelligent, plus rapide, disponible 24h/24.
+        </p>
+      </div>
+
+      <!-- Navigation Links -->
+      <div>
+        <h3 class="font-semibold mb-4 text-foreground">Navigation</h3>
+        <ul class="space-y-3">
+          <li>
+            <a href="/" class="text-muted-foreground hover:text-primary transition-colors text-sm">
+              Accueil
+            </a>
+          </li>
+          <li>
+            <a href="/offres" class="text-muted-foreground hover:text-primary transition-colors text-sm">
+              Nos offres
+            </a>
+          </li>
+          <li>
+            <a href="/contact" class="text-muted-foreground hover:text-primary transition-colors text-sm">
+              Contact
+            </a>
+          </li>
+          <li>
+            <a href="/demo" class="text-muted-foreground hover:text-primary transition-colors text-sm">
+              Démo
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Legal Info -->
+      <div>
+        <h3 class="font-semibold mb-4 text-foreground">Informations légales</h3>
+        <ul class="space-y-3">
+          <li>
+            <a href="/legal" class="text-muted-foreground hover:text-primary transition-colors text-sm">
+              Mentions légales
+            </a>
+          </li>
+          <li>
+            <a href="/privacy" class="text-muted-foreground hover:text-primary transition-colors text-sm">
+              Politique de confidentialité
+            </a>
+          </li>
+          <li>
+            <a href="/terms" class="text-muted-foreground hover:text-primary transition-colors text-sm">
+              CGU
+            </a>
+          </li>
+          <li>
+            <a href="/data-deletion" class="text-muted-foreground hover:text-primary transition-colors text-sm">
+              Suppression des données
+            </a>
+          </li>
+          <li>
+            <a href="/cookies" class="text-muted-foreground hover:text-primary transition-colors text-sm">
+              Politique des cookies
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Contact Info -->
+      <div>
+        <h3 class="font-semibold mb-4 text-foreground">Contact</h3>
+        <div class="space-y-3">
+          <div class="flex items-center space-x-3">
+            <svg class="h-4 w-4 text-primary flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="16" x="2" y="4" rx="2"/>
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+            </svg>
+            <a
+              href="mailto:chatfoodsas@gmail.com"
+              class="text-muted-foreground hover:text-primary transition-colors text-sm"
+            >
+              chatfoodsas@gmail.com
+            </a>
+          </div>
+          <div class="flex items-center space-x-3">
+            <svg class="h-4 w-4 text-primary flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+            <span class="text-muted-foreground text-sm">
+              Lyon, France
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="mt-12 pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-4">
+      <p class="text-muted-foreground text-sm">
+        © {currentYear} ChatFood SAS. Tous droits réservés.
+      </p>
+      <div class="flex items-center space-x-4">
+        <span class="text-muted-foreground text-xs">
+          Propulsé par l'IA WhatsApp
+        </span>
+      </div>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,354 @@
+---
+import PublicLayout from '@/layouts/PublicLayout.astro';
+
+const stats = [
+  {
+    icon: 'Users',
+    label: 'Restaurants actifs',
+    value: '5+',
+    colorClass: 'text-primary',
+  },
+  {
+    icon: 'MessageCircle',
+    label: 'Commandes traitées',
+    value: '100+',
+    colorClass: 'text-blue-500',
+  },
+  {
+    icon: 'Zap',
+    label: 'Temps de réponse',
+    value: '<5s',
+    colorClass: 'text-green-500',
+  },
+  {
+    icon: 'Clock',
+    label: 'Disponibilité',
+    value: '24/7',
+    colorClass: 'text-orange-500',
+  },
+];
+
+const faqs = [
+  {
+    question: "Combien de temps prend la mise en place ?",
+    answer: "La configuration complète de ChatFood prend en moyenne 30 minutes. Notre équipe s'occupe de tout : importation de votre menu, personnalisation du bot, formation de votre équipe."
+  },
+  {
+    question: "Puis-je tester ChatFood gratuitement ?",
+    answer: "Oui ! Nous proposons une offre gratuite illimitée pour découvrir ChatFood. Vous pouvez tester toutes les fonctionnalités de base sans engagement."
+  },
+  {
+    question: "Comment mes clients commandent-ils ?",
+    answer: "Vos clients envoient simplement un message WhatsApp à votre numéro. ChatFood comprend leur demande, présente le menu, prend la commande et vous la transmet instantanément."
+  },
+  {
+    question: "ChatFood fonctionne-t-il avec mon numéro WhatsApp actuel ?",
+    answer: "Oui, ChatFood s'intègre à votre numéro WhatsApp Business existant. Vos clients continuent de vous contacter sur le même numéro qu'ils connaissent déjà."
+  },
+  {
+    question: "Que se passe-t-il si le bot ne comprend pas une demande ?",
+    answer: "ChatFood est conçu pour comprendre le langage naturel. En cas de demande complexe, le bot peut rediriger vers un humain ou demander des précisions. Vous gardez toujours le contrôle."
+  }
+];
+
+const statIconMap: Record<string, string> = {
+  Users: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-8 w-8"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+  MessageCircle: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-8 w-8"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>`,
+  Zap: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-8 w-8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+  Clock: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-8 w-8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+};
+---
+
+<PublicLayout 
+  title="Contact - ChatFood | Demandez votre démo gratuite" 
+  description="Contactez l'équipe ChatFood pour une démo gratuite de notre assistant IA WhatsApp pour restaurants. Support français 7j/7. Réponse sous 24h."
+>
+  <!-- Hero Section -->
+  <section class="py-20 bg-gradient-to-br from-primary/5 to-primary-light/10">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto text-center">
+        <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-sm font-semibold bg-primary/10 text-primary mb-4 animate-bounce">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+          Support français 7j/7
+        </span>
+        <h1 class="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
+          Parlons de votre projet
+          <span class="text-primary"> ChatFood</span>
+        </h1>
+        <p class="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in animation-delay-200">
+          Notre équipe d'experts vous accompagne dans la mise en place de votre assistant IA. Démo gratuite,
+          configuration incluse.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Form & Info -->
+  <section class="py-20" id="contact-form">
+    <div class="container mx-auto px-4">
+      <div class="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
+        <!-- Contact Form -->
+        <div class="rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-xl transition-all duration-500">
+          <div class="flex flex-col space-y-1.5 p-6">
+            <h2 class="text-2xl font-semibold leading-none tracking-tight">Demander une démo</h2>
+            <p class="text-sm text-muted-foreground">Remplissez ce formulaire et nous vous contacterons sous 24h</p>
+          </div>
+          <div class="p-6 pt-0">
+            <form id="contact-form-element" class="space-y-6">
+              <div class="grid md:grid-cols-2 gap-4">
+                <div class="space-y-2">
+                  <label for="name" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Nom complet
+                  </label>
+                  <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    required
+                    placeholder="Votre nom"
+                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-300"
+                  />
+                </div>
+                <div class="space-y-2">
+                  <label for="phone" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Téléphone
+                  </label>
+                  <input 
+                    type="tel" 
+                    id="phone" 
+                    name="phone"
+                    placeholder="06 12 34 56 78"
+                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-300"
+                  />
+                </div>
+              </div>
+
+              <div class="space-y-2">
+                <label for="email" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Email
+                </label>
+                <input 
+                  type="email" 
+                  id="email" 
+                  name="email" 
+                  required
+                  placeholder="votre@email.com"
+                  class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-300"
+                />
+              </div>
+
+              <div class="space-y-2">
+                <label for="restaurant" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Nom du restaurant
+                </label>
+                <input 
+                  type="text" 
+                  id="restaurant" 
+                  name="restaurant"
+                  placeholder="Le nom de votre restaurant"
+                  class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-300"
+                />
+              </div>
+
+              <div class="space-y-2">
+                <label for="message" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Message
+                </label>
+                <textarea 
+                  id="message" 
+                  name="message" 
+                  rows="4"
+                  placeholder="Parlez-nous de votre projet, vos besoins, vos questions..."
+                  class="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-300"
+                ></textarea>
+              </div>
+
+              <button 
+                type="submit"
+                id="submit-btn"
+                class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90 h-11 px-8 rounded-md w-full cta-magnetic"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+                <span id="submit-text">Demander ma démo gratuite</span>
+              </button>
+            </form>
+
+            <!-- Success message (hidden by default) -->
+            <div id="success-message" class="hidden mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+              <p class="text-green-800 dark:text-green-200 font-medium">🎉 Demande envoyée avec succès !</p>
+              <p class="text-green-600 dark:text-green-400 text-sm mt-1">Notre équipe vous contactera sous 24h pour organiser votre démo gratuite.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="space-y-8">
+          <div class="rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-xl transition-all duration-500">
+            <div class="flex flex-col space-y-1.5 p-6">
+              <h3 class="text-lg font-semibold leading-none tracking-tight flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-primary"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                Nous appeler
+              </h3>
+            </div>
+            <div class="p-6 pt-0">
+              <p class="text-2xl font-bold text-primary mb-2">+33 7 78 00 41 88</p>
+              <p class="text-muted-foreground">
+                Du lundi au vendredi, 9h-19h<br/>
+                Samedi et Dimanche 10h-16h
+              </p>
+            </div>
+          </div>
+
+          <div class="rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-xl transition-all duration-500">
+            <div class="flex flex-col space-y-1.5 p-6">
+              <h3 class="text-lg font-semibold leading-none tracking-tight flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-primary"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                Nous écrire
+              </h3>
+            </div>
+            <div class="p-6 pt-0">
+              <a href="mailto:chatfoodsas@gmail.com" class="text-lg font-semibold text-primary hover:underline mb-2 block">
+                chatfoodsas@gmail.com
+              </a>
+              <p class="text-muted-foreground">Réponse garantie sous 2h en jour ouvré</p>
+            </div>
+          </div>
+
+          <div class="rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-xl transition-all duration-500">
+            <div class="flex flex-col space-y-1.5 p-6">
+              <h3 class="text-lg font-semibold leading-none tracking-tight flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-primary"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                Notre adresse
+              </h3>
+            </div>
+            <div class="p-6 pt-0">
+              <p class="text-foreground font-medium">ChatFood SAS</p>
+              <p class="text-muted-foreground">
+                36, rue Brissard<br/>
+                92140 Clamart, France
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="py-16 bg-muted/30">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+        {stats.map((stat) => (
+          <div class="text-center">
+            <div class={`${stat.colorClass} mx-auto mb-2`}>
+              <Fragment set:html={statIconMap[stat.icon]} />
+            </div>
+            <div class="text-3xl font-bold text-foreground">{stat.value}</div>
+            <div class="text-sm text-muted-foreground">{stat.label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="py-20">
+    <div class="container mx-auto px-4">
+      <div class="max-w-3xl mx-auto">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold mb-4">Questions fréquentes</h2>
+          <p class="text-muted-foreground">Tout ce que vous devez savoir sur ChatFood</p>
+        </div>
+        
+        <div class="space-y-4">
+          {faqs.map((faq, index) => (
+            <details class="group rounded-lg border bg-card">
+              <summary class="flex cursor-pointer items-center justify-between p-6 text-left font-medium text-foreground hover:bg-muted/50 rounded-lg transition-colors">
+                {faq.question}
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 shrink-0 text-muted-foreground transition-transform group-open:rotate-180"><path d="m6 9 6 6 6-6"/></svg>
+              </summary>
+              <div class="px-6 pb-6 text-muted-foreground">
+                {faq.answer}
+              </div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-20 bg-gradient-to-r from-primary/5 to-primary-light/5">
+    <div class="container mx-auto px-4 text-center">
+      <h2 class="text-3xl font-bold mb-4">
+        Prêt à transformer votre restaurant avec <span class="text-primary">ChatFood</span> ?
+      </h2>
+      <p class="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+        Rejoignez les restaurateurs qui ont déjà adopté l'IA conversationnelle pour booster leurs ventes.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="#contact-form" class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90 h-11 px-8 rounded-md cta-magnetic">
+          Demander une démo
+        </a>
+        <a href="/offres" class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-11 px-8 rounded-md">
+          Voir nos offres
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Contact form submission handler
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('contact-form-element') as HTMLFormElement;
+      const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+      const submitText = document.getElementById('submit-text') as HTMLSpanElement;
+      const successMessage = document.getElementById('success-message') as HTMLDivElement;
+
+      if (form) {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          // Disable button and show loading state
+          submitBtn.disabled = true;
+          submitText.textContent = 'Envoi en cours...';
+
+          const formData = new FormData(form);
+          const data = {
+            name: formData.get('name'),
+            email: formData.get('email'),
+            restaurant: formData.get('restaurant'),
+            phone: formData.get('phone'),
+            message: formData.get('message'),
+            timestamp: new Date().toISOString(),
+            source: 'website-contact-form'
+          };
+
+          try {
+            await fetch('https://n8n.chatfood.fr/webhook/demande-site', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              mode: 'no-cors',
+              body: JSON.stringify(data),
+            });
+
+            // Show success message
+            successMessage.classList.remove('hidden');
+            form.reset();
+          } catch (error) {
+            console.error('Error submitting form:', error);
+            // Still show success since no-cors mode doesn't give us response
+            successMessage.classList.remove('hidden');
+            form.reset();
+          } finally {
+            // Re-enable button
+            submitBtn.disabled = false;
+            submitText.textContent = 'Demander ma démo gratuite';
+          }
+        });
+      }
+    });
+  </script>
+</PublicLayout>

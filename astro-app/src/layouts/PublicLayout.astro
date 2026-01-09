@@ -1,0 +1,32 @@
+---
+/**
+ * Public Layout - For marketing and public pages
+ * 
+ * Includes Header and Footer as static Astro components
+ */
+
+import BaseLayout from './BaseLayout.astro';
+import Header from '@/components/astro/Header.astro';
+import Footer from '@/components/astro/Footer.astro';
+
+export interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  canonicalUrl?: string;
+  noindex?: boolean;
+  jsonLd?: object;
+}
+
+const props = Astro.props;
+---
+
+<BaseLayout {...props}>
+  <div class="flex min-h-screen flex-col">
+    <Header />
+    <main class="flex-1">
+      <slot />
+    </main>
+    <Footer />
+  </div>
+</BaseLayout>

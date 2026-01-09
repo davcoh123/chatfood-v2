@@ -1,0 +1,84 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import LoginForm from '@/components/react/LoginForm';
+
+const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+---
+
+<BaseLayout
+  title="Connexion - ChatFood"
+  description="Connectez-vous à votre espace ChatFood pour gérer votre restaurant, vos commandes et votre catalogue."
+  canonical="/login"
+>
+  <div class="min-h-screen relative overflow-hidden">
+    <!-- Background with animated gradient -->
+    <div class="absolute inset-0 bg-gradient-to-br from-green-500/5 via-white to-green-300/10"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,_rgba(34,197,94,0.1)_0%,_transparent_50%)]"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,_rgba(74,222,128,0.08)_0%,_transparent_50%)]"></div>
+    
+    <!-- Floating elements -->
+    <div class="absolute top-20 left-10 w-20 h-20 bg-green-500/5 rounded-full blur-xl animate-float"></div>
+    <div class="absolute bottom-32 right-16 w-32 h-32 bg-green-300/5 rounded-full blur-2xl animate-float" style="animation-delay: 0.2s"></div>
+    <div class="absolute top-1/2 left-1/4 w-16 h-16 bg-green-500/3 rounded-full blur-lg animate-float" style="animation-delay: 0.4s"></div>
+    
+    <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
+      <div class="w-full max-w-lg space-y-8">
+        <!-- Header -->
+        <div class="text-center space-y-6">
+          <a href="/" class="inline-flex items-center space-x-2 rounded-lg p-2 -m-2 mb-8 group transition-all duration-300 hover:bg-gray-100">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 group-hover:text-green-600 transition-colors duration-200 group-hover:-translate-x-1 transform">
+              <path d="m12 19-7-7 7-7"></path>
+              <path d="M19 12H5"></path>
+            </svg>
+            <span class="text-sm text-gray-500 group-hover:text-green-600 transition-colors duration-200">Retour à l'accueil</span>
+          </a>
+          
+          <div class="space-y-4">
+            <div class="flex items-center justify-center space-x-3">
+              <div class="relative">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600">
+                  <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path>
+                </svg>
+                <div class="absolute inset-0 w-12 h-12 bg-green-500/20 rounded-full blur-lg animate-pulse"></div>
+              </div>
+              <span class="text-3xl font-bold bg-gradient-to-r from-green-600 via-green-500 to-green-600 bg-clip-text text-transparent">
+                ChatFood
+              </span>
+            </div>
+            <div class="space-y-2">
+              <h1 class="text-2xl font-semibold text-gray-900">
+                Bienvenue
+              </h1>
+              <p class="text-gray-500">
+                Connectez-vous pour accéder à votre espace personnel
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Login Form -->
+        <LoginForm 
+          client:load 
+          supabaseUrl={SUPABASE_URL}
+          supabaseAnonKey={SUPABASE_ANON_KEY}
+        />
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-20px) rotate(5deg);
+    }
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+</style>

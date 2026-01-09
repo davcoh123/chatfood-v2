@@ -1,0 +1,335 @@
+---
+import PublicLayout from '@/layouts/PublicLayout.astro';
+
+const features = [
+  {
+    icon: 'MessageCircle',
+    title: 'IA conversationnelle avancée',
+    description: 'ChatFood comprend le langage naturel et répond comme un vrai serveur expérimenté',
+  },
+  {
+    icon: 'Clock',
+    title: 'Service non-stop',
+    description: 'Vos clients commandent quand ils veulent, ChatFood ne dort jamais',
+  },
+  {
+    icon: 'Users',
+    title: 'Gestion intelligente',
+    description: 'Traite plusieurs conversations simultanément avec une personnalité unique',
+  },
+  {
+    icon: 'BarChart',
+    title: 'Analytics prédictifs',
+    description: 'ChatFood apprend des habitudes clients et suggère des améliorations',
+  },
+];
+
+const plans = [
+  {
+    name: 'Offre Gratuite',
+    price: 'Gratuit',
+    description: 'Durée ILLIMITÉE',
+    idealFor: 'Idéale pour découvrir ChatFood et commencer à automatiser vos commandes',
+    features: [
+      'Installation et configuration du chatbot personnalisé selon le menu du restaurant',
+      'Prise de commandes en temps réel avec vos clients',
+      'Messages illimités',
+      'Ajustements en temps réel (délais, ruptures de stock, options de livraison...)',
+      'Multilingue',
+    ],
+    popular: false,
+    slug: 'starter',
+    available: true,
+  },
+  {
+    name: 'Pro',
+    price: '65,90€',
+    description: 'Passez à la vitesse supérieure grâce à l\'automatisation complète des commandes',
+    idealFor: 'Idéal pour les restaurants souhaitant optimiser et maîtriser la prise de commandes',
+    features: [
+      'Tout de l\'Offre Gratuite',
+      'Contrôle du comportement du chatbot (suggestions, recommandations, règles de dialogue...)',
+      'Interface Analytics complète : suivez vos ventes et performances',
+      'Support prioritaire',
+    ],
+    popular: true,
+    slug: 'pro',
+    available: false,
+  },
+  {
+    name: 'Premium',
+    price: '85,90€',
+    description: 'La solution tout-en-un pour les restaurants ambitieux et les chaînes',
+    idealFor: 'L\'offre idéale pour maximiser votre efficacité et fidéliser vos clients',
+    features: [
+      'Tout du Plan Pro',
+      'Gestion des réservations avec calendrier intégré',
+      'Apprentissage IA avancé : le bot s\'adapte et mémorise les commandes récurrentes',
+      'Envoi de promotions ciblées via WhatsApp',
+      'Paiement en ligne sans intermédiaire',
+      'Support personnalisé par un Account manager',
+    ],
+    popular: false,
+    slug: 'premium',
+    available: false,
+  },
+];
+
+const featureIconMap: Record<string, string> = {
+  MessageCircle: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-12 w-12 text-primary mx-auto mb-4"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>`,
+  Clock: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-12 w-12 text-primary mx-auto mb-4"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+  Users: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-12 w-12 text-primary mx-auto mb-4"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+  BarChart: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-12 w-12 text-primary mx-auto mb-4"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>`,
+};
+
+const checkIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-green-600 mr-3 flex-shrink-0 mt-0.5"><path d="M20 6 9 17l-5-5"/></svg>`;
+---
+
+<PublicLayout 
+  title="Nos Offres - ChatFood | Assistant IA WhatsApp" 
+  description="Découvrez les offres ChatFood : assistant IA conversationnel pour restaurants via WhatsApp. Offre gratuite disponible, automatisez vos commandes dès aujourd'hui."
+>
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json" slot="json-ld" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "ChatFood",
+    "description": "Assistant IA conversationnel pour restaurants via WhatsApp",
+    "brand": {
+      "@type": "Brand",
+      "name": "ChatFood"
+    },
+    "offers": [
+      {
+        "@type": "Offer",
+        "name": "Offre Gratuite",
+        "price": "0",
+        "priceCurrency": "EUR",
+        "availability": "https://schema.org/InStock"
+      },
+      {
+        "@type": "Offer",
+        "name": "Pro",
+        "price": "65.90",
+        "priceCurrency": "EUR",
+        "availability": "https://schema.org/PreOrder"
+      },
+      {
+        "@type": "Offer",
+        "name": "Premium",
+        "price": "85.90",
+        "priceCurrency": "EUR",
+        "availability": "https://schema.org/PreOrder"
+      }
+    ]
+  })} />
+
+  <!-- Hero Section -->
+  <section class="py-20 bg-gradient-to-br from-primary/5 to-primary/10">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto text-center">
+        <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-sm font-semibold bg-primary/10 text-primary mb-4 animate-bounce pulse-glow">
+          Solution complète
+        </span>
+        <h1 class="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
+          Découvrez la puissance de
+          <span class="text-primary"> ChatFood</span>
+        </h1>
+        <p class="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-fade-in animation-delay-200">
+          L'assistant IA conversationnel qui comprend vos clients et booste vos ventes. 
+          Plus intelligent qu'un humain, disponible 24h/24.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="py-20">
+    <div class="container mx-auto px-4">
+      <h2 class="text-3xl font-bold text-center mb-12 animate-fade-in">
+        Pourquoi <span class="text-primary">ChatFood</span> ?
+      </h2>
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        {features.map((feature, index) => (
+          <div 
+            class="rounded-lg border bg-card text-card-foreground shadow-sm text-center hover:shadow-xl transition-all duration-500 hover:scale-105 animate-slide-in-left"
+            style={`animation-delay: ${0.5 + index * 0.2}s`}
+          >
+            <div class="flex flex-col space-y-1.5 p-6">
+              <Fragment set:html={featureIconMap[feature.icon]} />
+              <h3 class="text-lg font-semibold leading-none tracking-tight">{feature.title}</h3>
+            </div>
+            <div class="p-6 pt-0">
+              <p class="text-sm text-muted-foreground">{feature.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Product Explanation -->
+  <section class="py-20 bg-muted/30">
+    <div class="container mx-auto px-4">
+      <div class="grid lg:grid-cols-2 gap-12 items-center">
+        <div class="animate-fade-in">
+          <h2 class="text-3xl font-bold mb-6">
+            ChatFood, votre serveur IA de nouvelle génération
+          </h2>
+          <p class="text-lg text-muted-foreground mb-6 animate-fade-in animation-delay-200">
+            ChatFood n'est pas un simple bot à commandes. C'est une IA conversationnelle 
+            qui comprend, conseille et interagit naturellement avec vos clients comme 
+            le ferait votre meilleur serveur.
+          </p>
+          <ul class="space-y-3 mb-8">
+            {['Comprend les demandes complexes et les nuances du langage', 'Suggère des plats selon les goûts et restrictions alimentaires', 'Mémorise les préférences de chaque client régulier', 'S\'adapte au style et à l\'ambiance de votre restaurant', 'Apprend en continu pour améliorer l\'expérience client'].map((item, index) => (
+              <li class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-primary mr-3 flex-shrink-0"><path d="M20 6 9 17l-5-5"/></svg>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+          <a href="/demo#chatfood-assistant" class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90 h-11 px-8 rounded-md animate-scale-hover pulse-glow">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+            Voir ChatFood en action
+          </a>
+        </div>
+        <div class="bg-primary/5 rounded-2xl p-8 transition-all duration-500 animate-fade-in animation-delay-400 hover:scale-105">
+          <div class="bg-background rounded-xl p-6 shadow-xl">
+            <h3 class="font-semibold mb-4 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-primary mr-2"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+              Conversation avec ChatFood
+            </h3>
+            <div class="space-y-4 text-sm max-h-96 overflow-y-auto">
+              <div class="bg-primary text-primary-foreground p-4 rounded-2xl rounded-bl-sm animate-fade-in">
+                🍕 Bonjour ! Je suis ChatFood, votre assistant personnel chez Pizza Express. 
+                Comment puis-je vous aider aujourd'hui ?
+              </div>
+              
+              <div class="bg-muted p-4 rounded-2xl rounded-br-sm ml-8 animate-fade-in animation-delay-200">
+                Salut ! J'aimerais commander quelque chose mais je sais pas trop quoi, vous avez quoi de bon ?
+              </div>
+              
+              <div class="bg-primary text-primary-foreground p-4 rounded-2xl rounded-bl-sm animate-fade-in animation-delay-400">
+                Parfait ! Pour mieux vous conseiller, dites-moi : plutôt envie d'une pizza classique 
+                ou quelque chose de plus original ? Et avez-vous des restrictions alimentaires ?
+              </div>
+              
+              <div class="bg-muted p-4 rounded-2xl rounded-br-sm ml-8 animate-fade-in animation-delay-600">
+                J'aime bien les trucs originaux, et je suis végétarien
+              </div>
+              
+              <div class="bg-primary text-primary-foreground p-4 rounded-2xl rounded-bl-sm animate-fade-in animation-delay-800">
+                Excellent choix ! Je vous recommande notre Pizza des Jardins : 
+                base tomate, mozzarella, légumes grillés (courgettes, aubergines, poivrons), 
+                roquette fraîche et pesto de basilic. C'est notre spécialité végé la plus populaire ! 
+                15€. Ça vous tente ?
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section class="py-20">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-12 animate-fade-in">
+        <h2 class="text-3xl font-bold mb-4">Choisissez votre <span class="text-primary">ChatFood</span></h2>
+        <p class="text-lg text-muted-foreground">
+          Des plans conçus pour accompagner votre croissance avec l'IA
+        </p>
+      </div>
+      
+      <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        {plans.map((plan, index) => (
+          <div class={plan.popular ? 'transition-transform duration-500 hover:scale-105' : ''}>
+            <div 
+              class="animate-slide-up h-full" 
+              style={`animation-delay: ${index * 0.2}s`}
+            >
+              <div class={`relative rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col h-full ${plan.popular ? 'border-primary shadow-xl ring-2 ring-primary/20' : ''}`}>
+                {plan.popular && (
+                  <span class="absolute -top-3 left-1/2 transform -translate-x-1/2 inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-primary text-primary-foreground">
+                    ⭐ Le plus demandé
+                  </span>
+                )}
+                <div class="flex flex-col space-y-1.5 p-6 text-center pb-6">
+                  <h3 class="text-2xl font-bold mb-4">{plan.name}</h3>
+                  
+                  <div class="min-h-[80px] flex items-center justify-center mb-4">
+                    <div class="text-5xl font-bold text-green-600">
+                      {plan.price}
+                      {plan.price !== 'Gratuit' && <span class="text-lg text-muted-foreground font-normal">/mois</span>}
+                    </div>
+                  </div>
+                  
+                  <p class="text-sm text-muted-foreground mb-3 min-h-[60px] flex items-center justify-center px-2">
+                    {plan.description}
+                  </p>
+                  
+                  <p class="text-sm text-foreground min-h-[60px] flex items-center justify-center px-2">
+                    {plan.idealFor}
+                  </p>
+                </div>
+                <div class="p-6 pt-0 flex-1 flex flex-col">
+                  <ul class="space-y-3 mb-6 flex-1">
+                    {plan.features.map((feature) => (
+                      <li class="flex items-start">
+                        <Fragment set:html={checkIcon} />
+                        <span class="text-sm text-left">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  {plan.available ? (
+                    <a 
+                      href={`/offres/${plan.slug}`} 
+                      class={`mt-auto inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all duration-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 w-full h-11 px-4 hover:shadow-lg hover:scale-105 ${plan.popular ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90' : 'border border-input bg-background hover:bg-accent hover:text-accent-foreground'}`}
+                    >
+                      Découvrir {plan.name}
+                    </a>
+                  ) : (
+                    <div class="mt-auto">
+                      <span class="w-full flex justify-center mb-2 inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-muted text-muted-foreground">
+                        Bientôt disponible
+                      </span>
+                      <button 
+                        disabled 
+                        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background w-full h-11 px-4"
+                      >
+                        Prochainement disponible
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-20 bg-primary/5">
+    <div class="container mx-auto px-4 text-center animate-fade-in">
+      <h2 class="text-3xl font-bold mb-4">
+        Prêt à booster vos ventes avec <span class="text-primary">ChatFood</span> ?
+      </h2>
+      <p class="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+        Rejoignez plus de 5 restaurants qui ont adopté l'IA conversationnelle. 
+        Découvrez ChatFood en action avec notre démo interactive.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/demo#chatfood-assistant" class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90 h-11 px-8 rounded-md cta-magnetic animate-glow-pulse">
+          Essayer la démo ChatFood
+        </a>
+        <a href="/contact" class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-primary/30 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 text-primary hover:bg-primary/10 h-11 px-8 rounded-md hover-lift plasma-border">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+          Parler à un expert IA
+        </a>
+      </div>
+    </div>
+  </section>
+</PublicLayout>

@@ -1,0 +1,144 @@
+---
+/**
+ * Header Component - Static Astro version
+ * 
+ * Server-rendered header with no JavaScript by default.
+ * Mobile menu uses client-side React island for interactivity.
+ */
+
+const user = Astro.locals.user;
+const pathname = Astro.url.pathname;
+---
+
+<header class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+  <div class="container mx-auto flex h-16 items-center justify-between px-4">
+    <!-- Logo -->
+    <a href="/" class="flex items-center space-x-2 hover-trace rounded-lg p-2 -m-2">
+      <svg class="h-8 w-8 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>
+      </svg>
+      <span class="text-xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent">
+        ChatFood
+      </span>
+    </a>
+    
+    <!-- Desktop Navigation -->
+    <nav class="hidden md:flex items-center space-x-6">
+      <a 
+        href="/" 
+        class:list={[
+          "text-sm font-medium hover:text-primary transition-all duration-300 px-3 py-2 rounded-lg",
+          pathname === "/" && "text-primary"
+        ]}
+      >
+        Accueil
+      </a>
+      <a 
+        href="/offres" 
+        class:list={[
+          "text-sm font-medium hover:text-primary transition-all duration-300 px-3 py-2 rounded-lg",
+          pathname.startsWith("/offres") && "text-primary"
+        ]}
+      >
+        Offres
+      </a>
+      <a 
+        href="/contact" 
+        class:list={[
+          "text-sm font-medium hover:text-primary transition-all duration-300 px-3 py-2 rounded-lg",
+          pathname === "/contact" && "text-primary"
+        ]}
+      >
+        Contact
+      </a>
+      <a 
+        href="/demo" 
+        class:list={[
+          "text-sm font-medium hover:text-primary transition-all duration-300 px-3 py-2 rounded-lg",
+          pathname === "/demo" && "text-primary"
+        ]}
+      >
+        Démo
+      </a>
+    </nav>
+
+    <!-- Desktop Auth Buttons -->
+    <div class="hidden md:flex items-center space-x-3">
+      {user ? (
+        <>
+          <a href="/dashboard">
+            <button class="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground transition-colors">
+              {user.role === 'admin' ? 'Admin Panel' : 'Mon espace'}
+            </button>
+          </a>
+          <a href="/api/auth/signout">
+            <button class="inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors">
+              Déconnexion
+            </button>
+          </a>
+        </>
+      ) : (
+        <a href="/login">
+          <button class="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-medium shadow hover:bg-primary/90 transition-colors cta-magnetic">
+            Se connecter
+          </button>
+        </a>
+      )}
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <button 
+      id="mobile-menu-btn"
+      class="md:hidden inline-flex items-center justify-center rounded-md h-10 w-10 hover:bg-accent transition-colors"
+      aria-label="Ouvrir le menu"
+    >
+      <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="4" x2="20" y1="12" y2="12"/>
+        <line x1="4" x2="20" y1="6" y2="6"/>
+        <line x1="4" x2="20" y1="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile Menu (hidden by default) -->
+  <div id="mobile-menu" class="hidden md:hidden absolute top-16 left-0 right-0 bg-background border-b shadow-lg">
+    <nav class="flex flex-col p-4 space-y-2">
+      <a href="/" class="py-3 px-4 text-center rounded-lg hover:bg-muted transition-colors">Accueil</a>
+      <a href="/offres" class="py-3 px-4 text-center rounded-lg hover:bg-muted transition-colors">Offres</a>
+      <a href="/contact" class="py-3 px-4 text-center rounded-lg hover:bg-muted transition-colors">Contact</a>
+      <a href="/demo" class="py-3 px-4 text-center rounded-lg hover:bg-muted transition-colors">Démo</a>
+      <hr class="my-2" />
+      {user ? (
+        <>
+          <a href="/dashboard" class="py-3 px-4 text-center rounded-lg border hover:bg-muted transition-colors">
+            {user.role === 'admin' ? 'Admin Panel' : 'Mon espace'}
+          </a>
+          <a href="/api/auth/signout" class="py-3 px-4 text-center rounded-lg hover:bg-muted transition-colors">
+            Déconnexion
+          </a>
+        </>
+      ) : (
+        <a href="/login" class="py-3 px-4 text-center rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+          Se connecter
+        </a>
+      )}
+    </nav>
+  </div>
+</header>
+
+<script>
+  // Simple mobile menu toggle - minimal JS
+  const menuBtn = document.getElementById('mobile-menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  
+  menuBtn?.addEventListener('click', () => {
+    mobileMenu?.classList.toggle('hidden');
+  });
+
+  // Close menu when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!menuBtn?.contains(e.target as Node) && !mobileMenu?.contains(e.target as Node)) {
+      mobileMenu?.classList.add('hidden');
+    }
+  });
+</script>
