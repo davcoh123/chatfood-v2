@@ -10,7 +10,7 @@ import type { AstroCookies } from 'astro';
 
 // Environment variables (set in .env)
 const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL || 'https://dcwfgxbwpecnjbhrhrib.supabase.co';
-const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjd2ZneGJ3cGVjbmpiaHJocmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjU5MjA4ODAsImV4cCI6MjA0MTQ5Njg4MH0.YA6bCcTMwrzX8tEOlIq2xKVPGdXLJEPdGrGNDL_7g6g';
+const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjd2ZneGJ3cGVjbmpiaHJocmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5MDc3NjMsImV4cCI6MjA3MjQ4Mzc2M30.ACjXdQxukmbAvokW8Py7TwfNQrhjy1jQAFbLLap98-w';
 
 /**
  * Creates a Supabase client for server-side rendering
