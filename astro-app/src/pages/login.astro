@@ -1,6 +1,17 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import LoginForm from '@/components/react/LoginForm';
+import { createServerClient } from '@/lib/supabase';
+
+// Check if user is already logged in
+const supabase = createServerClient(Astro.cookies);
+const { data: { user } } = await supabase.auth.getUser();
+
+if (user) {
+  // User is already logged in, redirect to dashboard
+  const redirectTo = Astro.url.searchParams.get('redirect') || '/dashboard';
+  return Astro.redirect(redirectTo);
+}
 
 // Utilisation des valeurs par défaut si les variables d'environnement ne sont pas définies
 const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL || 'https://dcwfgxbwpecnjbhrhrib.supabase.co';

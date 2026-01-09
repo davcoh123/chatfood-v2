@@ -1,0 +1,98 @@
+---
+import AdminLayout from '@/layouts/AdminLayout.astro';
+import { createServerClient } from '@/lib/supabase';
+
+const supabase = createServerClient(Astro.cookies);
+const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+if (!user || userError) {
+  return Astro.redirect('/login?redirect=/admin/settings');
+}
+
+let isAdmin = false;
+try {
+  const { data: role } = await supabase
+  .from('user_roles')
+  .select('role')
+  .eq('user_id', user.id)
+  .single();
+  isAdmin = role?.role === 'admin';
+} catch (e) {
+  isAdmin = false;
+}
+
+if (!isAdmin) {
+  return Astro.redirect('/dashboard');
+}
+---
+
+<AdminLayout title="Paramètres - Admin">
+  <div class="space-y-6">
+    <div>
+      <h1 class="text-2xl font-bold">Paramètres système</h1>
+      <p class="text-gray-500">Configuration globale de la plateforme</p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="bg-white rounded-xl border p-6">
+        <h3 class="font-semibold mb-4">Mode maintenance</h3>
+        <p class="text-gray-500 text-sm mb-4">
+          Activer le mode maintenance bloque l'accès aux utilisateurs non-admin.
+        </p>
+        <label class="flex items-center gap-3 cursor-pointer">
+          <input type="checkbox" class="w-5 h-5 rounded" />
+          <span>Activer le mode maintenance</span>
+        </label>
+      </div>
+
+      <div class="bg-white rounded-xl border p-6">
+        <h3 class="font-semibold mb-4">Inscriptions</h3>
+        <p class="text-gray-500 text-sm mb-4">
+          Contrôle des nouvelles inscriptions sur la plateforme.
+        </p>
+        <label class="flex items-center gap-3 cursor-pointer">
+          <input type="checkbox" checked class="w-5 h-5 rounded" />
+          <span>Autoriser les nouvelles inscriptions</span>
+        </label>
+      </div>
+
+      <div class="bg-white rounded-xl border p-6">
+        <h3 class="font-semibold mb-4">Notifications email</h3>
+        <p class="text-gray-500 text-sm mb-4">
+          Configuration des emails automatiques.
+        </p>
+        <label class="flex items-center gap-3 cursor-pointer">
+          <input type="checkbox" checked class="w-5 h-5 rounded" />
+          <span>Emails de bienvenue</span>
+        </label>
+        <label class="flex items-center gap-3 cursor-pointer mt-2">
+          <input type="checkbox" checked class="w-5 h-5 rounded" />
+          <span>Notifications de commande</span>
+        </label>
+      </div>
+
+      <div class="bg-white rounded-xl border p-6">
+        <h3 class="font-semibold mb-4">Sécurité</h3>
+        <p class="text-gray-500 text-sm mb-4">
+          Paramètres de sécurité de la plateforme.
+        </p>
+        <div class="space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="text-sm">Max tentatives connexion</span>
+            <input type="number" value="5" class="w-20 border rounded px-2 py-1 text-sm" />
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-sm">Durée blocage (min)</span>
+            <input type="number" value="30" class="w-20 border rounded px-2 py-1 text-sm" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-end">
+      <button class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors">
+        Sauvegarder
+      </button>
+    </div>
+  </div>
+</AdminLayout>

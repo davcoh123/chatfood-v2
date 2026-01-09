@@ -2,7 +2,7 @@
  * Supabase Browser Client
  * 
  * For use in React islands and client-side code only.
- * Uses the same credentials as the SSR client.
+ * Configured to properly sync cookies for SSR authentication.
  */
 
 import { createBrowserClient } from '@supabase/ssr';
@@ -14,10 +14,45 @@ let browserClient: ReturnType<typeof createBrowserClient> | null = null;
 
 /**
  * Creates or returns singleton Supabase browser client
+ * Configured to use cookies for SSR compatibility
  */
 export function getSupabaseBrowserClient() {
+  if (typeof window === 'undefined') {
+    // Return null on server side
+    return null;
+  }
+  
   if (!browserClient) {
-    browserClient = createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    browserClient = createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      cookies: {
+        getAll() {
+          return document.cookie.split('; ').filter(Boolean).map(cookie => {
+            const [name, ...valueParts] = cookie.split('=');
+            return {
+              name: decodeURIComponent(name || ''),
+              value: decodeURIComponent(valueParts.join('=') || ''),
+            };
+          });
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            const encodedName = encodeURIComponent(name);
+            const encodedValue = encodeURIComponent(value);
+            let cookieString = `${encodedName}=${encodedValue}`;
+            
+            if (options?.path) cookieString += `; path=${options.path}`;
+            else cookieString += '; path=/';
+            
+            if (options?.maxAge) cookieString += `; max-age=${options.maxAge}`;
+            if (options?.domain) cookieString += `; domain=${options.domain}`;
+            if (options?.secure) cookieString += '; secure';
+            if (options?.sameSite) cookieString += `; samesite=${options.sameSite}`;
+            
+            document.cookie = cookieString;
+          });
+        },
+      },
+    });
   }
   return browserClient;
 }

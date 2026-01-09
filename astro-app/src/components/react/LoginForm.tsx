@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from 'react';
-import { createBrowserClient } from '@supabase/ssr';
+import { useState, useEffect, type FormEvent } from 'react';
+import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
 interface LoginFormProps {
   supabaseUrl: string;
@@ -17,7 +17,8 @@ export default function LoginForm({ supabaseUrl, supabaseAnonKey }: LoginFormPro
   const [success, setSuccess] = useState<string | null>(null);
   const [passwordStrength, setPasswordStrength] = useState(0);
 
-  const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
+  // Get the browser client (singleton)
+  const supabase = getSupabaseBrowserClient();
 
   const calculatePasswordStrength = (pwd: string): number => {
     let strength = 0;
@@ -40,6 +41,12 @@ export default function LoginForm({ supabaseUrl, supabaseAnonKey }: LoginFormPro
     setError(null);
     setSuccess(null);
 
+    if (!supabase) {
+      setError('Client Supabase non disponible');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       if (isSignUp) {
         // Inscription
@@ -61,6 +68,7 @@ export default function LoginForm({ supabaseUrl, supabaseAnonKey }: LoginFormPro
 
         if (data.user) {
           setSuccess('Inscription réussie ! Redirection...');
+          // Force a hard refresh to ensure cookies are read by the server
           setTimeout(() => {
             window.location.href = '/dashboard';
           }, 1000);
@@ -83,9 +91,15 @@ export default function LoginForm({ supabaseUrl, supabaseAnonKey }: LoginFormPro
 
         if (data.session) {
           setSuccess('Connexion réussie ! Redirection...');
+          
+          // Get redirect URL from query params or default to dashboard
+          const urlParams = new URLSearchParams(window.location.search);
+          const redirectTo = urlParams.get('redirect') || '/dashboard';
+          
+          // Force a hard navigation to ensure cookies are sent to server
           setTimeout(() => {
-            window.location.href = '/dashboard';
-          }, 1000);
+            window.location.href = redirectTo;
+          }, 500);
         }
       }
     } catch (err) {

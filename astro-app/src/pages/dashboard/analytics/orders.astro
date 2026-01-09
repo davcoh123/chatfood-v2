@@ -1,0 +1,16 @@
+---
+import DashboardLayout from '@/layouts/DashboardLayout.astro';
+import { createServerClient } from '@/lib/supabase';
+import OrdersAnalyticsPage from '@/components/react/analytics/OrdersAnalyticsPage';
+
+const supabase = createServerClient(Astro.cookies);
+const { data: { user } } = await supabase.auth.getUser();
+
+if (!user) {
+  return Astro.redirect('/login?redirect=/dashboard/analytics/orders');
+}
+---
+
+<DashboardLayout title="Analytics - Commandes">
+  <OrdersAnalyticsPage client:only="react" />
+</DashboardLayout>

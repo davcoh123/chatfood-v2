@@ -12,6 +12,13 @@ import type { AstroCookies } from 'astro';
 const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL || 'https://dcwfgxbwpecnjbhrhrib.supabase.co';
 const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjd2ZneGJ3cGVjbmpiaHJocmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5MDc3NjMsImV4cCI6MjA3MjQ4Mzc2M30.ACjXdQxukmbAvokW8Py7TwfNQrhjy1jQAFbLLap98-w';
 
+// Supabase auth cookie names
+const AUTH_COOKIE_NAMES = [
+  'sb-dcwfgxbwpecnjbhrhrib-auth-token',
+  'sb-dcwfgxbwpecnjbhrhrib-auth-token.0',
+  'sb-dcwfgxbwpecnjbhrhrib-auth-token.1',
+];
+
 /**
  * Creates a Supabase client for server-side rendering
  * with cookie-based session management
@@ -23,23 +30,28 @@ export function createSupabaseServerClient(cookies: AstroCookies) {
     {
       cookies: {
         getAll() {
-          return cookies.headers().toString()
-            .split('; ')
-            .filter(Boolean)
-            .map((cookie) => {
-              const [name, ...valueParts] = cookie.split('=');
-              return {
-                name: name || '',
-                value: valueParts.join('=') || '',
-              };
-            });
+          const allCookies: { name: string; value: string }[] = [];
+          
+          // Get all Supabase auth cookies
+          AUTH_COOKIE_NAMES.forEach(name => {
+            const value = cookies.get(name)?.value;
+            if (value) {
+              allCookies.push({ name, value });
+            }
+          });
+          
+          // Also check for any other sb- cookies
+          // Astro doesn't have a built-in way to get all cookies,
+          // so we rely on the known cookie names
+          
+          return allCookies;
         },
         setAll(cookiesToSet: CookieOptionsWithName[]) {
           cookiesToSet.forEach(({ name, value, options }) => {
             cookies.set(name, value, {
               path: '/',
               secure: import.meta.env.PROD,
-              httpOnly: true,
+              httpOnly: false, // Allow JS to read for client-side sync
               sameSite: 'lax',
               maxAge: 60 * 60 * 24 * 7, // 1 week
               ...options,

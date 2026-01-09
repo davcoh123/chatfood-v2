@@ -1,0 +1,17 @@
+---
+import DashboardLayout from '@/layouts/DashboardLayout.astro';
+import { createServerClient } from '@/lib/supabase';
+import AnalyticsPage from '@/components/react/AnalyticsPage';
+
+// Auth check
+const supabase = createServerClient(Astro.cookies);
+const { data: { user } } = await supabase.auth.getUser();
+
+if (!user) {
+  return Astro.redirect('/login?redirect=/dashboard/analytics');
+}
+---
+
+<DashboardLayout title="Analytics">
+  <AnalyticsPage client:only="react" />
+</DashboardLayout>

@@ -1,0 +1,32 @@
+---
+import AdminLayout from '@/layouts/AdminLayout.astro';
+import { createServerClient } from '@/lib/supabase';
+import AdminDashboardsPage from '@/components/react/admin/AdminDashboardsPage';
+
+const supabase = createServerClient(Astro.cookies);
+const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+if (!user || userError) {
+  return Astro.redirect('/login?redirect=/admin/dashboards');
+}
+
+let isAdmin = false;
+try {
+  const { data: role } = await supabase
+  .from('user_roles')
+  .select('role')
+  .eq('user_id', user.id)
+  .single();
+  isAdmin = role?.role === 'admin';
+} catch (e) {
+  isAdmin = false;
+}
+
+if (!isAdmin) {
+  return Astro.redirect('/dashboard');
+}
+---
+
+<AdminLayout title="Restaurants - Admin">
+  <AdminDashboardsPage client:only="react" />
+</AdminLayout>

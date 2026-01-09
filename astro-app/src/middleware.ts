@@ -8,7 +8,10 @@
  */
 
 import { defineMiddleware } from 'astro:middleware';
-import { createSupabaseServerClient, getUserWithProfile } from '@/lib/supabase-server';
+import { createServerClient } from '@supabase/ssr';
+
+const SUPABASE_URL = 'https://dcwfgxbwpecnjbhrhrib.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjd2ZneGJ3cGVjbmpiaHJocmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5MDc3NjMsImV4cCI6MjA3MjQ4Mzc2M30.ACjXdQxukmbAvokW8Py7TwfNQrhjy1jQAFbLLap98-w';
 
 // Routes that require authentication
 const PROTECTED_ROUTES = [
@@ -45,7 +48,7 @@ const PUBLIC_ROUTES = [
 ];
 
 export const onRequest = defineMiddleware(async (context, next) => {
-  const { cookies, url, redirect, locals } = context;
+  const { cookies, url, redirect, locals, request } = context;
   const pathname = url.pathname;
 
   // Skip middleware for static assets
@@ -53,20 +56,78 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return next();
   }
 
-  // Create Supabase client and refresh session
-  const supabase = createSupabaseServerClient(cookies);
+  // Parse cookies from request header (most reliable method)
+  const cookieHeader = request.headers.get('cookie') || '';
+  const parsedCookies: { name: string; value: string }[] = [];
   
-  // Try to get and refresh the session
-  const { data: { session } } = await supabase.auth.getSession();
+  cookieHeader.split(';').forEach(cookie => {
+    const trimmed = cookie.trim();
+    if (trimmed) {
+      const eqIndex = trimmed.indexOf('=');
+      if (eqIndex > 0) {
+        const name = trimmed.substring(0, eqIndex);
+        const value = trimmed.substring(eqIndex + 1);
+        parsedCookies.push({
+          name: decodeURIComponent(name),
+          value: decodeURIComponent(value),
+        });
+      }
+    }
+  });
+
+  // Create Supabase client with proper cookie handling
+  const supabase = createServerClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY,
+    {
+      cookies: {
+        getAll() {
+          return parsedCookies;
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookies.set(name, value, {
+              path: '/',
+              secure: true,
+              httpOnly: false, // Allow JS to read for client sync
+              sameSite: 'lax',
+              maxAge: 60 * 60 * 24 * 7,
+              ...options,
+            });
+          });
+        },
+      },
+    }
+  );
+  
+  // Get current user
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // Store supabase client in locals for page use
+  (locals as any).supabase = supabase;
 
   // Inject user into locals for SSR pages
-  if (session?.user) {
-    const userWithProfile = await getUserWithProfile(cookies);
-    locals.user = userWithProfile;
-    locals.session = session;
+  if (user) {
+    // Get profile if user exists
+    let profile = null;
+    try {
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+      profile = data;
+    } catch (e) {
+      // Profile might not exist yet
+    }
+    
+    (locals as any).user = {
+      id: user.id,
+      email: user.email,
+      ...profile,
+    };
   } else {
-    locals.user = null;
-    locals.session = null;
+    (locals as any).user = null;
   }
 
   // Check if route is protected
@@ -80,7 +141,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // Check authentication for protected routes
-  if (isProtectedRoute && !session) {
+  if (isProtectedRoute && !user) {
     // Store the intended destination for redirect after login
     const redirectUrl = new URL('/login', url.origin);
     redirectUrl.searchParams.set('redirect', pathname);
@@ -88,7 +149,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // Check admin role for admin routes
-  if (isAdminRoute && locals.user?.role !== 'admin') {
+  if (isAdminRoute && (locals as any).user?.role !== 'admin') {
     return redirect('/dashboard');
   }
 
@@ -103,7 +164,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
       const isMaintenanceMode = maintenanceSettings?.setting_value?.enabled === true;
       
-      if (isMaintenanceMode && locals.user?.role !== 'admin') {
+      if (isMaintenanceMode && (locals as any).user?.role !== 'admin') {
         return redirect('/maintenance');
       }
     } catch {
@@ -112,7 +173,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // Redirect logged-in users away from login page
-  if (pathname === '/login' && session) {
+  if (pathname === '/login' && user) {
     return redirect('/dashboard');
   }
 

@@ -1,16 +1,13 @@
 ---
 import DashboardLayout from '@/layouts/DashboardLayout.astro';
-import { getUserWithProfile, createSupabaseServerClient } from '@/lib/supabase-server';
 
-// Get user profile and settings
-const { user, profile } = await getUserWithProfile(Astro);
+// Get user from middleware locals
+const user = (Astro.locals as any).user;
+const supabase = (Astro.locals as any).supabase;
 
-if (!user || !profile) {
+if (!user) {
   return Astro.redirect('/login');
 }
-
-// Get restaurant settings for stats
-const supabase = createSupabaseServerClient(Astro);
 
 // Fetch restaurant settings
 const { data: settings } = await supabase
@@ -59,7 +56,7 @@ const onboardingProgress = Math.round((completedSteps / onboardingSteps.length) 
     <!-- Welcome Section -->
     <div class="bg-gradient-to-r from-green-600 to-green-700 rounded-xl p-6 text-white">
       <h2 class="text-2xl font-bold mb-2">
-        Bienvenue, {profile.first_name || 'Restaurateur'} ! 👋
+        Bienvenue, {user.first_name || 'Restaurateur'} ! 👋
       </h2>
       <p class="text-green-100">
         {settings?.restaurant_name 
@@ -150,7 +147,7 @@ const onboardingProgress = Math.round((completedSteps / onboardingSteps.length) 
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm text-gray-500 mb-1">Plan actuel</p>
-            <p class="text-2xl font-bold text-gray-900 capitalize">{profile.plan || 'Starter'}</p>
+            <p class="text-2xl font-bold text-gray-900 capitalize">{user.plan || 'Starter'}</p>
           </div>
           <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-600"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>

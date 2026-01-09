@@ -14,7 +14,7 @@ export type AssistantPayload = {
     postal_code: string | null;
     city: string | null;
   };
-  assets: string[];
+  assets: string[]; // 0, 1, ou 2 URLs
   submit_order: boolean;
 };
 
@@ -78,55 +78,69 @@ export async function resolveAssetsToObjectURLs(
 ): Promise<string[]> {
   if (assets.length === 0) return [];
 
-  const results: string[] = [];
+  const results: (string | null)[] = Array(assets.length).fill(null);
 
-  for (const assetUrl of assets) {
-    // Vérifier le cache
-    const cacheKey = `${ctx.chatId}:${assetUrl}`;
-    if (assetBlobCache.has(cacheKey)) {
-      results.push(assetBlobCache.get(cacheKey)!);
-      continue;
-    }
+  await Promise.all(
+    assets.map(async (src, index) => {
+      try {
+        // Cache hit
+        if (assetBlobCache.has(src)) {
+          results[index] = assetBlobCache.get(src)!;
+          return;
+        }
 
-    try {
-      const blob = await fetchWithRetryBinary(assetUrl, {
-        chatId: ctx.chatId,
-        messageId: ctx.messageId,
-        assetUrl,
-      });
+        // Télécharger le binaire
+        const blob = await fetchWithRetryBinary(src, {
+          url: src,
+          chatId: ctx.chatId,
+          messageId: ctx.messageId,
+          index,
+        });
 
-      const objectUrl = URL.createObjectURL(blob);
-      assetBlobCache.set(cacheKey, objectUrl);
-      results.push(objectUrl);
-    } catch (error) {
-      console.error(`Failed to load asset: ${assetUrl}`, error);
-      // On continue sans l'image en cas d'erreur
-    }
-  }
-
-  return results;
-}
-
-// Attendre que les images soient chargées
-export function waitImagesLoad(urls: string[]): Promise<void[]> {
-  return Promise.all(
-    urls.map(
-      (url) =>
-        new Promise<void>((resolve) => {
-          const img = new Image();
-          img.onload = () => resolve();
-          img.onerror = () => resolve(); // Résoudre même en cas d'erreur
-          img.src = url;
-        })
-    )
+        const objUrl = URL.createObjectURL(blob);
+        assetBlobCache.set(src, objUrl);
+        results[index] = objUrl;
+      } catch {
+        // Fallback : URL directe si échec binaire
+        results[index] = src;
+      }
+    })
   );
+
+  return results.map((v, i) => v ?? assets[i]);
 }
 
-// Nettoyer les ObjectURLs
-export function revokeObjectURLs(urls: string[]): void {
-  urls.forEach((url) => {
-    if (url.startsWith('blob:')) {
-      URL.revokeObjectURL(url);
-    }
+// Attendre que toutes les images soient chargées
+export function waitImagesLoad(urls: string[]): Promise<void> {
+  return new Promise((resolve) => {
+    if (!urls.length) return resolve();
+
+    let loaded = 0;
+    const total = urls.length;
+
+    urls.forEach((url) => {
+      const img = new Image();
+      img.onload = () => {
+        loaded++;
+        if (loaded >= total) resolve();
+      };
+      img.onerror = () => {
+        // Débloquer même en cas d'erreur
+        loaded++;
+        if (loaded >= total) resolve();
+      };
+      img.src = url;
+      img.loading = "eager";
+      img.decoding = "async";
+    });
   });
+}
+
+// Fonction pour libérer un ObjectURL du cache
+export function revokeAssetObjectURL(url: string): void {
+  const objectUrl = assetBlobCache.get(url);
+  if (objectUrl && objectUrl.startsWith('blob:')) {
+    URL.revokeObjectURL(objectUrl);
+    assetBlobCache.delete(url);
+  }
 }
