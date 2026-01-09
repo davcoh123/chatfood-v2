@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useEffect, useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, subMonths, subWeeks, format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -42,19 +42,9 @@ const CATEGORY_PALETTE = [
   '#A855F7', // purple
 ];
 
-export function useRevenueAnalytics(passedUserId?: string) {
-  const [authUserId, setAuthUserId] = useState<string | null>(null);
-  
-  // Get userId from Supabase auth if not passed
-  useEffect(() => {
-    if (!passedUserId) {
-      supabase.auth.getUser().then(({ data }) => {
-        if (data.user) setAuthUserId(data.user.id);
-      });
-    }
-  }, [passedUserId]);
-  
-  const userId = passedUserId || authUserId;
+export function useRevenueAnalytics() {
+  const { user } = useAuth();
+  const userId = user?.id;
   
   const { data: orders, isLoading: ordersLoading } = useQuery({
     queryKey: ['revenue-orders', userId],

@@ -37,6 +37,9 @@ export const useAuth = () => {
 
 interface AuthProviderProps {
   children: React.ReactNode;
+  initialUser?: User | null;
+  initialSession?: Session | null;
+  initialProfile?: Profile | null;
 }
 
 // Function to get client IP from edge function
@@ -51,11 +54,16 @@ const getClientIP = async (): Promise<string> => {
   }
 };
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+export const AuthProvider: React.FC<AuthProviderProps> = ({ 
+  children, 
+  initialUser = null, 
+  initialSession = null, 
+  initialProfile = null 
+}) => {
+  const [user, setUser] = useState<User | null>(initialUser);
+  const [profile, setProfile] = useState<Profile | null>(initialProfile);
+  const [session, setSession] = useState<Session | null>(initialSession);
+  const [loading, setLoading] = useState(!initialUser);
 
   const fetchProfile = async (userId: string) => {
     try {

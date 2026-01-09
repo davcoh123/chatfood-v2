@@ -1,7 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
-import { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useEffect } from 'react';
 
 export interface Message {
   id: string;
@@ -22,19 +23,11 @@ export interface Conversation {
   messages: Message[];
 }
 
-export const useConversations = (passedUserId?: string) => {
+export const useConversations = () => {
+  const queryClient = useQueryClient();
   const { toast } = useToast();
-  const [authUserId, setAuthUserId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!passedUserId) {
-      supabase.auth.getUser().then(({ data }) => {
-        if (data.user) setAuthUserId(data.user.id);
-      });
-    }
-  }, [passedUserId]);
-
-  const userId = passedUserId || authUserId || '';
+  const { profile } = useAuth();
+  const userId = profile?.user_id || '';
 
   const { data, isLoading, error, refetch } = useQuery<{ conversations: Conversation[] }>({
     queryKey: ['conversations', userId],
@@ -116,6 +109,33 @@ export const useConversations = (passedUserId?: string) => {
     enabled: !!userId,
     refetchInterval: 30000,
   });
+
+  // Setup realtime subscription for new messages
+  useEffect(() => {
+    if (!userId) return;
+
+    const channel = supabase
+      .channel('conversations-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'chatbot_messages',
+          filter: `user_id=eq.${userId}`,
+        },
+        (payload) => {
+          console.log('Realtime message update:', payload);
+          // Invalidate and refetch conversations when a message changes
+          queryClient.invalidateQueries({ queryKey: ['conversations', userId] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId, queryClient]);
 
   return {
     conversations: data?.conversations ?? [],

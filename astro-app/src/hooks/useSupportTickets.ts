@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { CreateTicketInput } from '@/schemas/support';
 
@@ -22,19 +23,12 @@ export interface SupportTicket {
   last_message_at: string | null;
 }
 
-export const useSupportTickets = (passedUserId?: string) => {
-  const [userId, setUserId] = useState<string | null>(passedUserId || null);
+export const useSupportTickets = () => {
+  const { profile } = useAuth();
+  const userId = profile?.user_id || null;
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
-
-  useEffect(() => {
-    if (!passedUserId) {
-      supabase.auth.getUser().then(({ data }) => {
-        if (data.user) setUserId(data.user.id);
-      });
-    }
-  }, [passedUserId]);
 
   const fetchUserTickets = async () => {
     if (!userId) return;

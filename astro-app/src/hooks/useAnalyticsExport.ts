@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { useRevenueAnalytics } from './useRevenueAnalytics';
 import { useOrdersAnalytics } from './useOrdersAnalytics';
 import { useCustomerAnalytics } from './useCustomerAnalytics';
@@ -12,13 +13,14 @@ import {
   AnalyticsExportData 
 } from '@/utils/analyticsExport';
 
-export function useAnalyticsExport(passedUserId?: string) {
+export function useAnalyticsExport() {
+  const { profile } = useAuth();
   const [restaurantName, setRestaurantName] = useState<string>('Restaurant');
   const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     const fetchRestaurantName = async () => {
-      const userId = passedUserId || (await supabase.auth.getUser()).data.user?.id;
+      const userId = profile?.user_id;
       if (userId) {
         const { data } = await supabase
           .from('restaurant_settings')
@@ -29,7 +31,7 @@ export function useAnalyticsExport(passedUserId?: string) {
       }
     };
     fetchRestaurantName();
-  }, [passedUserId]);
+  }, [profile?.user_id]);
 
   const { 
     revenueThisMonth, 
@@ -38,7 +40,7 @@ export function useAnalyticsExport(passedUserId?: string) {
     averageWeeklyRevenue,
     weeklyRevenue,
     revenueByCategory,
-  } = useRevenueAnalytics(passedUserId);
+  } = useRevenueAnalytics();
 
   const { 
     ordersThisMonth, 
@@ -46,7 +48,7 @@ export function useAnalyticsExport(passedUserId?: string) {
     ordersByDayOfWeek,
     peakDay,
     peakHour,
-  } = useOrdersAnalytics(passedUserId);
+  } = useOrdersAnalytics();
 
   const { 
     totalCustomers, 
@@ -54,12 +56,12 @@ export function useAnalyticsExport(passedUserId?: string) {
     retentionRate,
     newCustomersThisMonth,
     segments,
-  } = useCustomerAnalytics(passedUserId);
+  } = useCustomerAnalytics();
 
   const { 
     topProducts, 
     totalSales,
-  } = useProductsAnalytics(passedUserId);
+  } = useProductsAnalytics();
 
   const { 
     averageRating, 

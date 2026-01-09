@@ -23,14 +23,10 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { ProductSuggestions } from "@/components/dashboard/ProductSuggestions";
 
-interface CataloguePageProps {
-  userId: string;
-}
-
-export default function CataloguePage({ userId }: CataloguePageProps) {
+export default function CataloguePage() {
   const { canAccessAdvancedCatalogue } = useSubscription();
-  const { items, isLoading, error, hasConfig, saveItems, isSaving, deleteItem, isDeleting } = useCatalogue({ userId });
-  const { settings, updateSettings } = useRestaurantSettings(userId);
+  const { items, isLoading, error, hasConfig, saveItems, isSaving, deleteItem, isDeleting } = useCatalogue();
+  const { settings, updateSettings } = useRestaurantSettings();
   const [searchTerm, setSearchTerm] = useState("");
   const [modifiedItems, setModifiedItems] = useState<Record<string, any>>({});
   const [hasChanges, setHasChanges] = useState(false);

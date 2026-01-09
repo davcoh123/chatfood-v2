@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { useEffect, useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 
 
 export interface CatalogueItem {
@@ -18,20 +18,10 @@ export interface CatalogueItem {
   allergens: string[];
 }
 
-export const useCatalogue = (options?: { userId?: string }) => {
+export const useCatalogue = () => {
   const queryClient = useQueryClient();
-  const [authUserId, setAuthUserId] = useState<string | null>(null);
-  
-  // Get userId from Supabase auth if not passed
-  useEffect(() => {
-    if (!options?.userId) {
-      supabase.auth.getUser().then(({ data }) => {
-        if (data.user) setAuthUserId(data.user.id);
-      });
-    }
-  }, [options?.userId]);
-  
-  const userId = options?.userId || authUserId || '';
+  const { profile } = useAuth();
+  const userId = profile?.user_id || '';
 
   // Récupérer les produits depuis Supabase
   const { data: items, isLoading: itemsLoading, error: itemsError } = useQuery<CatalogueItem[]>({

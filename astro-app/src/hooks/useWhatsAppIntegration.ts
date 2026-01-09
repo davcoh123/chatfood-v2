@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 
 export interface WhatsAppIntegration {
@@ -17,18 +17,9 @@ export interface WhatsAppIntegration {
   updated_at: string | null;
 }
 
-export function useWhatsAppIntegration(passedUserId?: string, includeInactive = false) {
-  const [authUserId, setAuthUserId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!passedUserId) {
-      supabase.auth.getUser().then(({ data }) => {
-        if (data.user) setAuthUserId(data.user.id);
-      });
-    }
-  }, [passedUserId]);
-
-  const targetUserId = passedUserId || authUserId || '';
+export function useWhatsAppIntegration(includeInactive = false) {
+  const { profile } = useAuth();
+  const targetUserId = profile?.user_id || '';
 
   const query = useQuery({
     queryKey: ['whatsapp-integration', targetUserId, includeInactive],

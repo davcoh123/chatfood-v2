@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 export interface OrderReview {
   id: string;
@@ -18,18 +18,9 @@ export interface ReviewStats {
   recentReviews: OrderReview[];
 }
 
-export function useOrderReviews(passedUserId?: string) {
-  const [authUserId, setAuthUserId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!passedUserId) {
-      supabase.auth.getUser().then(({ data }) => {
-        if (data.user) setAuthUserId(data.user.id);
-      });
-    }
-  }, [passedUserId]);
-
-  const userId = passedUserId || authUserId || '';
+export function useOrderReviews() {
+  const { profile } = useAuth();
+  const userId = profile?.user_id || '';
 
   const { data: reviews, isLoading } = useQuery({
     queryKey: ['order-reviews', userId],

@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 interface CatalogueProduct {
@@ -22,20 +23,11 @@ interface CatalogueCategory {
   products: CatalogueProduct[];
 }
 
-export function useCatalogueCreator(passedUserId?: string) {
+export function useCatalogueCreator() {
   const [categories, setCategories] = useState<CatalogueCategory[]>([]);
-  const [authUserId, setAuthUserId] = useState<string | null>(null);
+  const { profile } = useAuth();
   const queryClient = useQueryClient();
-
-  useEffect(() => {
-    if (!passedUserId) {
-      supabase.auth.getUser().then(({ data }) => {
-        if (data.user) setAuthUserId(data.user.id);
-      });
-    }
-  }, [passedUserId]);
-
-  const userId = passedUserId || authUserId || '';
+  const userId = profile?.user_id || '';
 
   // Mutation pour créer le catalogue directement dans Supabase
   const createCatalogue = useMutation({

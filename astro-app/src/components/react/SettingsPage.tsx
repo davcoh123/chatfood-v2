@@ -4,6 +4,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { useCatalogue } from "@/hooks/useCatalogue";
 import { useWhatsAppIntegration } from "@/hooks/useWhatsAppIntegration";
 import { useDeleteAccount } from "@/hooks/useDeleteAccount";
+import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,28 +24,22 @@ import {
   Settings as SettingsIcon, MessageSquare
 } from "lucide-react";
 
-interface SettingsPageProps {
-  userId: string;
-  userEmail: string;
-  firstName?: string;
-  lastName?: string;
-}
-
 const DAYS_OF_WEEK = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
 
-export default function SettingsPage({ userId, userEmail, firstName, lastName }: SettingsPageProps) {
-  const { settings, isLoading, updateSettings, isUpdating } = useRestaurantSettings(userId);
+export default function SettingsPage() {
+  const { user, profile } = useAuth();
+  const { settings, isLoading, updateSettings, isUpdating } = useRestaurantSettings();
   const { plan } = useSubscription();
   const { integration: whatsappIntegration, isLoading: whatsappLoading } = useWhatsAppIntegration();
-  const { items: catalogueItems } = useCatalogue({ userId });
+  const { items: catalogueItems } = useCatalogue();
   const { deleteAccount, isDeleting } = useDeleteAccount();
   
   const hasCatalogue = catalogueItems && catalogueItems.length > 0;
   const isStarterPlan = plan === 'starter';
   
   // Profile state
-  const [profileFirstName, setProfileFirstName] = useState(firstName || '');
-  const [profileLastName, setProfileLastName] = useState(lastName || '');
+  const [profileFirstName, setProfileFirstName] = useState(profile?.first_name || '');
+  const [profileLastName, setProfileLastName] = useState(profile?.last_name || '');
   
   // Restaurant state
   const [restaurantName, setRestaurantName] = useState('');

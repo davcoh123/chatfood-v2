@@ -1,9 +1,13 @@
 ---
 import DashboardLayout from '@/layouts/DashboardLayout.astro';
-import { SettingsPageWrapper } from '@/components/react/SettingsPageWrapper';
+import { DashboardRoot } from '@/components/react/providers/DashboardRoot';
+import SettingsPage from '@/components/react/SettingsPage';
+import { Toaster } from '@/components/ui/toaster';
 
-// Get user from middleware locals (profile data is already merged)
+// Get user, session, profile from middleware locals
 const user = (Astro.locals as any).user;
+const session = (Astro.locals as any).session;
+const profile = (Astro.locals as any).profile;
 
 if (!user) {
   return Astro.redirect('/login?redirect=/dashboard/settings');
@@ -19,10 +23,9 @@ if (!user) {
       </p>
     </div>
     
-    <SettingsPageWrapper 
-      client:only="react" 
-      userId={user.id}
-      userEmail={user.email || ''}
-    />
+    <DashboardRoot client:only="react" user={user} session={session} profile={profile}>
+      <SettingsPage />
+      <Toaster />
+    </DashboardRoot>
   </div>
 </DashboardLayout>

@@ -1,9 +1,13 @@
 ---
 import DashboardLayout from '@/layouts/DashboardLayout.astro';
-import { CataloguePageWrapper } from '@/components/react/CataloguePageWrapper';
+import { DashboardRoot } from '@/components/react/providers/DashboardRoot';
+import CataloguePage from '@/components/react/CataloguePage';
+import { Toaster } from '@/components/ui/toaster';
 
-// Get user from middleware locals
+// Get user, session, profile from middleware locals
 const user = (Astro.locals as any).user;
+const session = (Astro.locals as any).session;
+const profile = (Astro.locals as any).profile;
 
 if (!user) {
   return Astro.redirect('/login?redirect=/dashboard/catalogue');
@@ -19,6 +23,9 @@ if (!user) {
       </p>
     </div>
     
-    <CataloguePageWrapper client:only="react" userId={user.id} />
+    <DashboardRoot client:only="react" user={user} session={session} profile={profile}>
+      <CataloguePage />
+      <Toaster />
+    </DashboardRoot>
   </div>
 </DashboardLayout>

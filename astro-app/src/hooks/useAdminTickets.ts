@@ -1,24 +1,11 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
-export const useAdminTickets = (passedRole?: string) => {
-  const [role, setRole] = useState<string | null>(passedRole || null);
+export const useAdminTickets = () => {
+  const { profile } = useAuth();
+  const role = profile?.role || null;
   const [awaitingAdminCount, setAwaitingAdminCount] = useState(0);
-
-  useEffect(() => {
-    if (!passedRole) {
-      supabase.auth.getUser().then(async ({ data }) => {
-        if (data.user) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', data.user.id)
-            .single();
-          if (profile) setRole(profile.role);
-        }
-      });
-    }
-  }, [passedRole]);
 
   const fetchAwaitingCount = async () => {
     if (role !== 'admin') return;

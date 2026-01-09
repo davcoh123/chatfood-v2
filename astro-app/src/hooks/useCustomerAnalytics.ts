@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { subMonths, startOfMonth, endOfMonth, format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -27,18 +27,9 @@ interface CustomerData {
   lastOrderDate: Date;
 }
 
-export function useCustomerAnalytics(passedUserId?: string) {
-  const [authUserId, setAuthUserId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!passedUserId) {
-      supabase.auth.getUser().then(({ data }) => {
-        if (data.user) setAuthUserId(data.user.id);
-      });
-    }
-  }, [passedUserId]);
-
-  const userId = passedUserId || authUserId || '';
+export function useCustomerAnalytics() {
+  const { profile } = useAuth();
+  const userId = profile?.user_id || '';
 
   // Fetch orders directly - the source of truth for customer data
   const { data: orders, isLoading: ordersLoading } = useQuery({

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, PackageOpen, Bell, BellOff } from 'lucide-react';
 import { useOrders } from '@/hooks/useOrders';
 import { useOrderNotification } from '@/hooks/useOrderNotification';
+import { useAuth } from '@/contexts/AuthContext';
 import { OrderCard } from './OrderCard';
 import { OrdersHistory } from './OrdersHistory';
 import { OrdersStats } from './OrdersStats';
@@ -14,13 +15,13 @@ import { useWhatsAppIntegration } from '@/hooks/useWhatsAppIntegration';
 import { useSubscription } from '@/hooks/useSubscription';
 
 interface OrdersPanelProps {
-  userId: string;
   userPlan?: string;
 }
 
-export const OrdersPanel: React.FC<OrdersPanelProps> = ({ userId, userPlan }) => {
+export const OrdersPanel: React.FC<OrdersPanelProps> = ({ userPlan }) => {
   const [activeTab, setActiveTab] = useState<'current' | 'history' | 'stats' | 'reviews'>('current');
-  const effectiveUserId = userId;
+  const { profile } = useAuth();
+  const userId = profile?.user_id || '';
   
   const { canAccessOrderStats, canAccessCustomerReviews } = useSubscription(userPlan);
   
@@ -34,10 +35,10 @@ export const OrdersPanel: React.FC<OrdersPanelProps> = ({ userId, userPlan }) =>
     getAveragePreparationTime,
     updateOrderStatus,
     isUpdating,
-  } = useOrders(effectiveUserId);
+  } = useOrders();
 
-  const { settings } = useRestaurantSettings(effectiveUserId);
-  const { integration } = useWhatsAppIntegration(effectiveUserId);
+  const { settings } = useRestaurantSettings();
+  const { integration } = useWhatsAppIntegration();
 
   const pendingOrders = getPendingOrders();
   const allOrders = [...getPendingOrders(), ...getOrdersHistory()];
@@ -129,7 +130,7 @@ export const OrdersPanel: React.FC<OrdersPanelProps> = ({ userId, userPlan }) =>
                   phoneNumberId={integration?.phone_number_id ?? settings?.phone_number_id ?? ''}
                   whatsappBusinessId={integration?.waba_id ?? settings?.whatsapp_business_id ?? ''}
                   accessToken={integration?.access_token ?? settings?.whatsapp_access_token ?? ''}
-                  userId={effectiveUserId ?? ''}
+                  userId={userId ?? ''}
                   products={products}
                 />
               ))}
@@ -153,7 +154,7 @@ export const OrdersPanel: React.FC<OrdersPanelProps> = ({ userId, userPlan }) =>
 
         {canAccessCustomerReviews && (
           <TabsContent value="reviews" className="mt-6">
-            <CustomerReviewsCard userId={effectiveUserId} />
+            <CustomerReviewsCard userId={userId} />
           </TabsContent>
         )}
       </Tabs>

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { startOfMonth, endOfMonth, format, getDay, getHours, startOfWeek, endOfWeek, subMonths } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -21,18 +21,9 @@ interface WeeklyVolume {
   growth: number;
 }
 
-export function useOrdersAnalytics(passedUserId?: string) {
-  const [authUserId, setAuthUserId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!passedUserId) {
-      supabase.auth.getUser().then(({ data }) => {
-        if (data.user) setAuthUserId(data.user.id);
-      });
-    }
-  }, [passedUserId]);
-
-  const userId = passedUserId || authUserId || '';
+export function useOrdersAnalytics() {
+  const { profile } = useAuth();
+  const userId = profile?.user_id || '';
 
   const { data: orders, isLoading } = useQuery({
     queryKey: ['orders-analytics', userId],

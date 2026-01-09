@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { useEffect, useState } from 'react';
 
 
 export interface OpeningHours {
@@ -124,20 +124,10 @@ export interface RestaurantSettings {
   onboarding_completed: boolean;
 }
 
-export function useRestaurantSettings(passedUserId?: string) {
+export function useRestaurantSettings() {
   const queryClient = useQueryClient();
-  const [authUserId, setAuthUserId] = useState<string | null>(null);
-  
-  // Get userId from Supabase auth if not passed
-  useEffect(() => {
-    if (!passedUserId) {
-      supabase.auth.getUser().then(({ data }) => {
-        if (data.user) setAuthUserId(data.user.id);
-      });
-    }
-  }, [passedUserId]);
-  
-  const userId = passedUserId || authUserId || '';
+  const { profile } = useAuth();
+  const userId = profile?.user_id || '';
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ['restaurant-settings', userId],

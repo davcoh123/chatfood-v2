@@ -1,9 +1,12 @@
 ---
 import AdminLayout from '@/layouts/AdminLayout.astro';
+import { DashboardRoot } from '@/components/react/providers/DashboardRoot';
 import AdminDashboardsPage from '@/components/react/admin/AdminDashboardsPage';
 
-// Get user from middleware locals (includes role)
+// Get user, session, profile from middleware locals
 const user = (Astro.locals as any).user;
+const session = (Astro.locals as any).session;
+const profile = (Astro.locals as any).profile;
 
 if (!user) {
   return Astro.redirect('/login?redirect=/admin/dashboards');
@@ -15,5 +18,7 @@ if (user.role !== 'admin') {
 ---
 
 <AdminLayout title="Restaurants - Admin">
-  <AdminDashboardsPage client:only="react" />
+  <DashboardRoot client:only="react" user={user} session={session} profile={profile}>
+    <AdminDashboardsPage />
+  </DashboardRoot>
 </AdminLayout>

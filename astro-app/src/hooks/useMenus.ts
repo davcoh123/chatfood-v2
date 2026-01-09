@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 
 
 export interface Menu {
@@ -22,19 +22,10 @@ export interface Menu {
   is_active: boolean;
 }
 
-export const useMenus = (options?: { userId?: string }) => {
+export const useMenus = () => {
   const queryClient = useQueryClient();
-  const [authUserId, setAuthUserId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!options?.userId) {
-      supabase.auth.getUser().then(({ data }) => {
-        if (data.user) setAuthUserId(data.user.id);
-      });
-    }
-  }, [options?.userId]);
-
-  const userId = options?.userId || authUserId || '';
+  const { profile } = useAuth();
+  const userId = profile?.user_id || '';
 
   // Récupérer les menus depuis Supabase
   const { data: menus, isLoading, error } = useQuery<Menu[]>({

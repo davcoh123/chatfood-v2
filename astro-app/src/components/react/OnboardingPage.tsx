@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, Check, Store, Clock, MessageCircle, ShoppingBag, FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useRestaurantSettings } from '@/hooks/useRestaurantSettings';
+import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 
 import OnboardingStep1 from '@/components/onboarding/OnboardingStep1';
@@ -27,12 +28,9 @@ const queryClient = new QueryClient({
   },
 });
 
-interface OnboardingPageProps {
-  userId: string;
-}
-
-function OnboardingContent({ userId }: OnboardingPageProps) {
-  const { settings, updateSettings } = useRestaurantSettings(userId);
+function OnboardingContent() {
+  const { user } = useAuth();
+  const { settings, updateSettings } = useRestaurantSettings();
   
   // Get step from URL or default to 1
   const [currentStep, setCurrentStep] = useState(1);
@@ -287,10 +285,10 @@ function OnboardingContent({ userId }: OnboardingPageProps) {
   );
 }
 
-export function OnboardingPage({ userId }: OnboardingPageProps) {
+export function OnboardingPage() {
   return (
     <QueryClientProvider client={queryClient}>
-      <OnboardingContent userId={userId} />
+      <OnboardingContent />
     </QueryClientProvider>
   );
 }
