@@ -100,11 +100,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   );
   
-  // Get current user
-  const { data: { user } } = await supabase.auth.getUser();
+  // Get current session (includes user and session token)
+  const { data: { session } } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
 
   // Store supabase client in locals for page use
   (locals as any).supabase = supabase;
+  (locals as any).session = session;
 
   // Inject user into locals for SSR pages
   if (user) {
@@ -146,8 +148,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
       console.error('[Middleware] Subscription fetch error:', subResult.error.message);
     }
     
-    // IMPORTANT: Spread profile first, then override with auth user data
-    // to avoid profile.id overwriting user.id (auth ID)
+    // Build complete profile object for AuthContext
+    const fullProfile = profile ? {
+      ...profile,
+      role,
+      plan,
+    } : null;
+    
+    // Store in locals
+    (locals as any).profile = fullProfile;
     (locals as any).user = {
       ...profile,
       id: user.id,          // Auth user ID - MUST come after spread to not be overwritten
@@ -159,6 +168,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     };
   } else {
     (locals as any).user = null;
+    (locals as any).profile = null;
   }
 
   // Check if route is protected
