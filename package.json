@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "build:dev": "vite build --mode development",
+    "build:dashboard": "cd astro-app/react-dashboard && npm install && npm run build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
