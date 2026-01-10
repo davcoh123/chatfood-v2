@@ -2,8 +2,5 @@
   "version": 2,
   "buildCommand": "npm run build:dashboard",
   "outputDirectory": "astro-app/react-dashboard/dist",
-  "installCommand": "npm install",
-  "scripts": {
-    "build:dashboard": "cd astro-app/react-dashboard && npm install && npm run build"
-  }
+  "installCommand": "npm install"
 }
