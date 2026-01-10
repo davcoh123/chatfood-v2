@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "framework": "vite",
+  "buildCommand": "cd astro-app/react-dashboard && npm install && npm run build",
+  "outputDirectory": "astro-app/react-dashboard/dist",
+  "installCommand": "cd astro-app/react-dashboard && npm install"
+}
