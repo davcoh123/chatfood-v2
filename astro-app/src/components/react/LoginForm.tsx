@@ -70,7 +70,7 @@ export default function LoginForm({ supabaseUrl, supabaseAnonKey }: LoginFormPro
           setSuccess('Inscription réussie ! Redirection...');
           // Force a hard refresh to ensure cookies are read by the server
           setTimeout(() => {
-            window.location.href = '/dashboard';
+            window.location.href = '/app/dashboard';
           }, 1000);
         }
       } else {
@@ -94,7 +94,7 @@ export default function LoginForm({ supabaseUrl, supabaseAnonKey }: LoginFormPro
           
           // Get redirect URL from query params or default to dashboard
           const urlParams = new URLSearchParams(window.location.search);
-          const redirectTo = urlParams.get('redirect') || '/dashboard';
+          const redirectTo = urlParams.get('redirect') || '/app/dashboard';
           
           // Force a hard navigation to ensure cookies are sent to server
           setTimeout(() => {

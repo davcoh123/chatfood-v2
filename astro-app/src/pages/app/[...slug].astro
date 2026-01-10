@@ -1,0 +1,31 @@
+---
+// Route catch-all pour servir le React SPA dashboard
+// Toutes les routes /app/* seront gérées par React Router côté client
+
+import { createServerClient } from '@/lib/supabase';
+
+// Vérifie l'authentification via les cookies
+const supabase = createServerClient(Astro.cookies);
+const { data: { user }, error } = await supabase.auth.getUser();
+
+if (error || !user) {
+  // Non authentifié ou session invalide, redirect vers login
+  return Astro.redirect('/login?redirect=' + encodeURIComponent(Astro.url.pathname));
+}
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#16a34a" />
+    <title>ChatFood - Dashboard</title>
+    <script type="module" crossorigin src="/app/assets/index.js"></script>
+    <link rel="stylesheet" crossorigin href="/app/assets/index.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

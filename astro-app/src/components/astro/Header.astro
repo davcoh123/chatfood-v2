@@ -66,7 +66,7 @@ const pathname = Astro.url.pathname;
     <div class="hidden md:flex items-center space-x-3">
       {user ? (
         <>
-          <a href="/dashboard">
+          <a href="/app/dashboard">
             <button class="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground transition-colors">
               {user.role === 'admin' ? 'Admin Panel' : 'Mon espace'}
             </button>
@@ -110,7 +110,7 @@ const pathname = Astro.url.pathname;
       <hr class="my-2" />
       {user ? (
         <>
-          <a href="/dashboard" class="py-3 px-4 text-center rounded-lg border hover:bg-muted transition-colors">
+          <a href="/app/dashboard" class="py-3 px-4 text-center rounded-lg border hover:bg-muted transition-colors">
             {user.role === 'admin' ? 'Admin Panel' : 'Mon espace'}
           </a>
           <a href="/api/auth/signout" class="py-3 px-4 text-center rounded-lg hover:bg-muted transition-colors">

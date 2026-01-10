@@ -4,7 +4,9 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "dev:dashboard": "cd react-dashboard && npm run dev",
+    "build:dashboard": "cd react-dashboard && npm install && npm run build",
+    "build": "npm run build:dashboard && astro build",
     "preview": "astro preview",
     "astro": "astro",
     "deploy": "vercel --prod"

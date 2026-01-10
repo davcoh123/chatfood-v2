@@ -7,7 +7,7 @@ const user = (Astro.locals as any).user;
 
 if (user) {
   // User is already logged in, redirect to dashboard
-  const redirectTo = Astro.url.searchParams.get('redirect') || '/dashboard';
+  const redirectTo = Astro.url.searchParams.get('redirect') || '/app/dashboard';
   return Astro.redirect(redirectTo);
 }
 
