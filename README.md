@@ -189,3 +189,7 @@ Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 ---
 
 ⭐ N'oubliez pas de mettre une étoile si ce projet vous plaît !
+
+---
+
+**Dernière mise à jour** : 12 janvier 2026
