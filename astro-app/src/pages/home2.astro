@@ -1,0 +1,771 @@
+---
+import PublicLayout from '@/layouts/PublicLayout.astro';
+
+// WhatsApp configuration
+const whatsappNumber = '33652434528';
+const whatsappMessage = encodeURIComponent("J'ai faim, j'aimerais commander.");
+const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+
+// Hero food image (appetizing)
+const heroImageUrl = 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80';
+
+// Food categories
+const categories = [
+  {
+    name: 'Pizza',
+    emoji: '🍕',
+    image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=300&h=200&fit=crop',
+    count: 45,
+  },
+  {
+    name: 'Sushi',
+    emoji: '🍣',
+    image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=300&h=200&fit=crop',
+    count: 32,
+  },
+  {
+    name: 'Burger',
+    emoji: '🍔',
+    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300&h=200&fit=crop',
+    count: 58,
+  },
+  {
+    name: 'Indien',
+    emoji: '🍛',
+    image: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=300&h=200&fit=crop',
+    count: 24,
+  },
+  {
+    name: 'Thaï',
+    emoji: '🥡',
+    image: 'https://images.unsplash.com/photo-1562565652-a0d8f0c59eb4?w=300&h=200&fit=crop',
+    count: 19,
+  },
+  {
+    name: 'Mexicain',
+    emoji: '🌮',
+    image: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300&h=200&fit=crop',
+    count: 28,
+  },
+  {
+    name: 'Healthy',
+    emoji: '🥗',
+    image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=300&h=200&fit=crop',
+    count: 35,
+  },
+  {
+    name: 'Desserts',
+    emoji: '🍰',
+    image: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=300&h=200&fit=crop',
+    count: 22,
+  },
+];
+
+// Partner restaurants
+const restaurants = [
+  {
+    name: 'Pizzeria Bella Napoli',
+    cuisine: 'Italien',
+    rating: 4.8,
+    reviews: 342,
+    deliveryTime: '25-35 min',
+    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop',
+    badge: 'Populaire',
+  },
+  {
+    name: 'Sushi Master',
+    cuisine: 'Japonais',
+    rating: 4.9,
+    reviews: 521,
+    deliveryTime: '30-40 min',
+    image: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400&h=300&fit=crop',
+    badge: 'Top noté',
+  },
+  {
+    name: 'Big Fernand',
+    cuisine: 'Burger',
+    rating: 4.7,
+    reviews: 289,
+    deliveryTime: '20-30 min',
+    image: 'https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=400&h=300&fit=crop',
+    badge: 'Livraison rapide',
+  },
+  {
+    name: 'Taj Mahal',
+    cuisine: 'Indien',
+    rating: 4.6,
+    reviews: 198,
+    deliveryTime: '35-45 min',
+    image: 'https://images.unsplash.com/photo-1552566626-52f8b828add9?w=400&h=300&fit=crop',
+    badge: null,
+  },
+  {
+    name: 'Le Bowl Healthy',
+    cuisine: 'Healthy',
+    rating: 4.8,
+    reviews: 156,
+    deliveryTime: '20-25 min',
+    image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400&h=300&fit=crop',
+    badge: 'Nouveau',
+  },
+  {
+    name: 'Thai Express',
+    cuisine: 'Thaï',
+    rating: 4.5,
+    reviews: 234,
+    deliveryTime: '30-40 min',
+    image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&h=300&fit=crop',
+    badge: null,
+  },
+];
+
+// Delivery cities
+const cities = [
+  { name: 'Paris', restaurants: 120, image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=300&h=200&fit=crop' },
+  { name: 'Lyon', restaurants: 85, image: 'https://images.unsplash.com/photo-1524484485831-a92ffc0de03f?w=300&h=200&fit=crop' },
+  { name: 'Marseille', restaurants: 72, image: 'https://images.unsplash.com/photo-1589656966895-2f33e7653819?w=300&h=200&fit=crop' },
+  { name: 'Bordeaux', restaurants: 54, image: 'https://images.unsplash.com/photo-1560983073-c29bff7438ef?w=300&h=200&fit=crop' },
+  { name: 'Toulouse', restaurants: 48, image: 'https://images.unsplash.com/photo-1570097065825-66f308dff2f4?w=300&h=200&fit=crop' },
+  { name: 'Nantes', restaurants: 41, image: 'https://images.unsplash.com/photo-1584466990297-2227a7f819f7?w=300&h=200&fit=crop' },
+];
+
+// Consumer benefits
+const benefits = [
+  {
+    emoji: '💬',
+    title: 'Simple comme bonjour',
+    description: "Pas d'app à installer. Vous avez WhatsApp ? C'est tout ce qu'il vous faut.",
+  },
+  {
+    emoji: '⚡',
+    title: 'Réponse instantanée',
+    description: 'Notre assistant répond en quelques secondes, 24h/24, même à 3h du matin.',
+  },
+  {
+    emoji: '❤️',
+    title: 'Recommandations perso',
+    description: 'Dites-nous vos envies (pizza, vegan, pas trop épicé...) on trouve pour vous.',
+  },
+  {
+    emoji: '⏱️',
+    title: 'Suivi en temps réel',
+    description: 'Suivez votre commande directement dans la conversation WhatsApp.',
+  },
+];
+
+// How it works steps
+const steps = [
+  {
+    step: '1',
+    emoji: '📱',
+    title: 'Envoyez un message',
+    description: 'Cliquez sur le bouton WhatsApp et dites "J\'ai faim" ou décrivez votre envie du moment.',
+  },
+  {
+    step: '2',
+    emoji: '🤖',
+    title: 'Discutez avec l\'assistant',
+    description: 'Notre IA vous propose des restaurants et plats adaptés à vos goûts. Posez vos questions !',
+  },
+  {
+    step: '3',
+    emoji: '🍕',
+    title: 'Recevez votre repas',
+    description: 'Confirmez votre commande et c\'est parti ! Livraison ou click & collect, à vous de choisir.',
+  },
+];
+
+// Consumer testimonials
+const testimonials = [
+  {
+    name: 'Marie L.',
+    location: 'Paris 11e',
+    text: "J'ai découvert ChatFood par hasard. Maintenant c'est ma méthode préférée pour commander ! Plus rapide que n'importe quelle app.",
+    rating: 5,
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=60&h=60&fit=crop&crop=face',
+  },
+  {
+    name: 'Thomas R.',
+    location: 'Lyon',
+    text: "À 2h du mat après une soirée, j'ai pu commander un kebab en 30 secondes. L'assistant est super sympa en plus !",
+    rating: 5,
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face',
+  },
+  {
+    name: 'Sophie M.',
+    location: 'Marseille',
+    text: "Parfait pour les allergies ! J'ai pu préciser \"sans gluten\" et l'assistant m'a trouvé exactement ce qu'il me fallait.",
+    rating: 5,
+    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face',
+  },
+  {
+    name: 'Lucas D.',
+    location: 'Bordeaux',
+    text: "Plus besoin de scroller pendant 20 minutes sur UberEats. Je dis ce que je veux, on me propose, je valide. Simple.",
+    rating: 5,
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face',
+  },
+  {
+    name: 'Emma B.',
+    location: 'Toulouse',
+    text: "Le futur de la commande de bouffe ! J'adore pouvoir juste dire \"j'ai envie de japonais pas trop cher\" et avoir des suggestions.",
+    rating: 5,
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=60&h=60&fit=crop&crop=face',
+  },
+  {
+    name: 'Antoine P.',
+    location: 'Nantes',
+    text: "Super pratique quand on est au bureau. Un message rapide et c'est réglé, pas besoin de perdre du temps sur une app.",
+    rating: 4,
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=60&h=60&fit=crop&crop=face',
+  },
+];
+
+// Avatar URLs for social proof
+const avatarUrls = [
+  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40&h=40&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face',
+];
+
+// WhatsApp SVG icon
+const whatsappIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
+---
+
+<PublicLayout
+  title="Commander à Manger sur WhatsApp - ChatFood | Livraison & Click & Collect"
+  description="Envie de manger ? Commandez facilement sur WhatsApp avec ChatFood. Pas d'app à télécharger, réponse instantanée 24/7. Pizza, sushi, burgers... Votre repas en quelques messages."
+>
+  <slot name="head">
+    <link rel="preload" as="image" href={heroImageUrl} />
+  </slot>
+
+  <!-- JSON-LD Structured Data for B2C -->
+  <script type="application/ld+json" slot="json-ld" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "ChatFood - Commande WhatsApp",
+    "applicationCategory": "FoodOrderingApplication",
+    "operatingSystem": "WhatsApp",
+    "description": "Commandez vos repas préférés directement sur WhatsApp. Simple, rapide, sans application à télécharger.",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "EUR",
+      "description": "Service gratuit pour les consommateurs"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "ChatFood",
+      "url": "https://chatfood.fr"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "reviewCount": "1250"
+    }
+  })} />
+
+  <!-- Hero Section - Warm gradient, food-focused -->
+  <section class="py-20 lg:py-32 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 relative overflow-hidden">
+    <!-- Decorative floating food emojis -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <span class="absolute top-20 left-10 text-5xl animate-float opacity-30">🍕</span>
+      <span class="absolute top-40 right-20 text-4xl animate-float opacity-30" style="animation-delay: 0.5s">🍔</span>
+      <span class="absolute bottom-32 left-1/4 text-5xl animate-float opacity-30" style="animation-delay: 1s">🍣</span>
+      <span class="absolute top-1/3 right-1/3 text-4xl animate-float opacity-30" style="animation-delay: 1.5s">🌮</span>
+      <span class="absolute bottom-20 right-10 text-5xl animate-float opacity-30" style="animation-delay: 2s">🥗</span>
+    </div>
+
+    <div class="container max-w-6xl mx-auto px-4 relative z-10">
+      <div class="grid lg:grid-cols-2 gap-12 items-center">
+        <div class="max-w-2xl">
+          <span class="inline-flex items-center rounded-full border border-orange-200 bg-orange-100 px-3 py-1 text-sm font-semibold text-orange-700 mb-6 animate-bounce">
+            🍽️ Commandez en 30 secondes
+          </span>
+
+          <h1 class="text-5xl md:text-7xl font-bold leading-tight mb-6 animate-fade-in">
+            <span class="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 bg-clip-text text-transparent">
+              Envie de manger ?
+            </span>
+          </h1>
+
+          <p class="text-xl md:text-2xl text-gray-600 mb-8 leading-relaxed animate-fade-in animation-delay-200">
+            Commandez sur <strong class="text-[#25D366]">WhatsApp</strong> en quelques secondes.<br/>
+            Pas d'app à télécharger. Juste un message.
+          </p>
+
+          <!-- Main WhatsApp CTA -->
+          <div class="flex flex-col sm:flex-row gap-4 mb-8 animate-fade-in animation-delay-400">
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#128C7E] text-white px-6 py-4 rounded-full text-base font-bold shadow-lg shadow-[#25D366]/30 hover:shadow-xl hover:shadow-[#25D366]/40 transition-all duration-300 hover:scale-105 cta-magnetic whitespace-nowrap"
+            >
+              <Fragment set:html={whatsappIcon} />
+              Commander maintenant
+            </a>
+            <a
+              href="#comment-ca-marche"
+              class="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full text-base font-semibold border-2 border-orange-300 text-orange-600 hover:bg-orange-100 transition-all duration-300 whitespace-nowrap"
+            >
+              Comment ça marche ?
+            </a>
+          </div>
+
+          <!-- Social proof -->
+          <div class="flex items-center gap-6 text-sm text-gray-500 animate-fade-in animation-delay-600">
+            <div class="flex items-center gap-2">
+              <div class="flex -space-x-3">
+                {avatarUrls.map((url) => (
+                  <img
+                    src={url}
+                    alt=""
+                    width="32"
+                    height="32"
+                    class="rounded-full border-2 border-white shadow-sm"
+                    loading="lazy"
+                  />
+                ))}
+                <span class="flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 text-orange-600 text-xs font-semibold border-2 border-white shadow-sm">
+                  +1k
+                </span>
+              </div>
+              <span>clients satisfaits</span>
+            </div>
+            <div class="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-yellow-500 mr-1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <span class="font-medium">4.8/5</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero image -->
+        <div class="relative animate-float hidden lg:block">
+          <div class="absolute inset-0 bg-gradient-to-r from-orange-400/20 to-amber-400/20 rounded-3xl blur-3xl transform rotate-6"></div>
+          <img
+            src={heroImageUrl}
+            alt="Délicieux plats à commander sur WhatsApp"
+            width="600"
+            height="400"
+            fetchpriority="high"
+            class="relative z-10 rounded-3xl shadow-2xl w-full hover-lift"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Categories Section -->
+  <section class="py-16 bg-white">
+    <div class="container max-w-6xl mx-auto px-4">
+      <div class="text-center mb-12 animate-fade-in">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">
+          Qu'est-ce qui vous fait <span class="text-orange-500">envie</span> ?
+        </h2>
+        <p class="text-lg text-gray-500">
+          Dites-le nous sur WhatsApp, on s'occupe du reste
+        </p>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
+        {categories.map((category, index) => (
+          <a
+            href={`${whatsappUrl.replace(whatsappMessage, encodeURIComponent(`J'ai envie de ${category.name.toLowerCase()}`))}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="group text-center animate-slide-up"
+            style={`animation-delay: ${index * 0.05}s`}
+          >
+            <div class="relative overflow-hidden rounded-2xl mb-3 aspect-square">
+              <img
+                src={category.image}
+                alt={category.name}
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                loading="lazy"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+              <span class="absolute bottom-2 left-1/2 -translate-x-1/2 text-3xl">{category.emoji}</span>
+            </div>
+            <h3 class="font-semibold text-gray-800 group-hover:text-orange-500 transition-colors">{category.name}</h3>
+            <p class="text-xs text-gray-400">{category.count} restos</p>
+          </a>
+        ))}
+      </div>
+
+      <!-- Quick search suggestion -->
+      <div class="mt-12 text-center">
+        <p class="text-gray-500 mb-4">Ou décrivez simplement ce que vous voulez :</p>
+        <div class="flex flex-wrap justify-center gap-2">
+          {['Pas trop cher', 'Végétarien', 'Sans gluten', 'Livraison rapide', 'Ouvert maintenant'].map((tag) => (
+            <a
+              href={`${whatsappUrl.replace(whatsappMessage, encodeURIComponent(`Je cherche un resto ${tag.toLowerCase()}`))}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="px-4 py-2 rounded-full border border-orange-200 text-orange-600 text-sm hover:bg-orange-100 transition-colors"
+            >
+              {tag}
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits Section -->
+  <section class="py-20 bg-gradient-to-b from-white to-orange-50">
+    <div class="container max-w-6xl mx-auto px-4">
+      <div class="text-center mb-16 animate-fade-in">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">
+          Pourquoi commander avec <span class="text-orange-500">ChatFood</span> ?
+        </h2>
+        <p class="text-lg text-gray-500 max-w-2xl mx-auto">
+          Fini les apps compliquées. Commandez comme vous envoyez un message à un ami.
+        </p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        {benefits.map((benefit, index) => (
+          <div
+            class="text-center p-6 rounded-2xl bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-100 hover:shadow-xl transition-all duration-500 hover:scale-105 animate-slide-up"
+            style={`animation-delay: ${index * 0.1}s`}
+          >
+            <div class="text-5xl mb-4">{benefit.emoji}</div>
+            <h3 class="text-lg font-bold text-gray-800 mb-2">{benefit.title}</h3>
+            <p class="text-sm text-gray-500">{benefit.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section id="comment-ca-marche" class="py-20 bg-gradient-to-b from-white to-orange-50">
+    <div class="container max-w-6xl mx-auto px-4">
+      <div class="text-center mb-16 animate-fade-in">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">
+          Comment ça marche ?
+        </h2>
+        <p class="text-lg text-gray-500">3 étapes, 30 secondes, c'est tout.</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+        {steps.map((item, index) => (
+          <div
+            class="text-center animate-slide-up relative"
+            style={`animation-delay: ${index * 0.2}s`}
+          >
+            {/* Connector line */}
+            {index < steps.length - 1 && (
+              <div class="hidden md:block absolute top-12 left-1/2 w-full h-0.5 bg-gradient-to-r from-orange-300 to-amber-300"></div>
+            )}
+
+            <div class="relative z-10">
+              <div class="w-24 h-24 bg-gradient-to-br from-orange-400 to-amber-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-orange-200">
+                <span class="text-4xl">{item.emoji}</span>
+              </div>
+              <div class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-orange-500 text-white text-sm font-bold mb-4">
+                {item.step}
+              </div>
+              <h3 class="text-xl font-bold text-gray-800 mb-3">{item.title}</h3>
+              <p class="text-gray-500 leading-relaxed">{item.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <!-- CTA after steps -->
+      <div class="text-center mt-12 animate-fade-in animation-delay-600">
+        <a
+          href={whatsappUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#128C7E] text-white px-8 py-4 rounded-full text-lg font-bold shadow-lg shadow-[#25D366]/30 hover:shadow-xl transition-all duration-300 hover:scale-105"
+        >
+          <Fragment set:html={whatsappIcon} />
+          Essayer maintenant
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Partner Restaurants Section -->
+  <section class="py-20 bg-white">
+    <div class="container max-w-6xl mx-auto px-4">
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between mb-12">
+        <div class="animate-fade-in">
+          <span class="inline-flex items-center rounded-full bg-orange-100 px-3 py-1 text-sm font-semibold text-orange-700 mb-4">
+            ⭐ Restaurants partenaires
+          </span>
+          <h2 class="text-3xl md:text-4xl font-bold mb-2">
+            Les meilleurs restos près de <span class="text-orange-500">chez vous</span>
+          </h2>
+          <p class="text-lg text-gray-500">
+            Découvrez notre sélection de restaurants de qualité
+          </p>
+        </div>
+        <a
+          href={whatsappUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="mt-4 md:mt-0 inline-flex items-center gap-2 text-orange-600 font-semibold hover:text-orange-700 transition-colors"
+        >
+          Voir tous les restaurants
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </a>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {restaurants.map((restaurant, index) => (
+          <a
+            href={`${whatsappUrl.replace(whatsappMessage, encodeURIComponent(`Je voudrais commander chez ${restaurant.name}`))}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="group bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-500 hover:-translate-y-1 animate-slide-up"
+            style={`animation-delay: ${index * 0.1}s`}
+          >
+            <div class="relative h-48 overflow-hidden">
+              <img
+                src={restaurant.image}
+                alt={restaurant.name}
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                loading="lazy"
+              />
+              {restaurant.badge && (
+                <span class="absolute top-3 left-3 px-3 py-1 rounded-full bg-orange-500 text-white text-xs font-semibold">
+                  {restaurant.badge}
+                </span>
+              )}
+              <div class="absolute bottom-3 right-3 px-2 py-1 rounded-lg bg-white/90 backdrop-blur-sm text-xs font-medium text-gray-700">
+                🕐 {restaurant.deliveryTime}
+              </div>
+            </div>
+            <div class="p-4">
+              <div class="flex items-start justify-between mb-2">
+                <div>
+                  <h3 class="font-bold text-gray-800 group-hover:text-orange-500 transition-colors">{restaurant.name}</h3>
+                  <p class="text-sm text-gray-500">{restaurant.cuisine}</p>
+                </div>
+                <div class="flex items-center gap-1 px-2 py-1 rounded-lg bg-orange-50">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="text-orange-500"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                  <span class="text-sm font-semibold text-orange-600">{restaurant.rating}</span>
+                </div>
+              </div>
+              <p class="text-xs text-gray-400">{restaurant.reviews} avis</p>
+            </div>
+          </a>
+        ))}
+      </div>
+
+      <!-- CTA to discover more -->
+      <div class="mt-12 text-center">
+        <a
+          href={whatsappUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center justify-center gap-3 bg-[#25D366] hover:bg-[#128C7E] text-white px-8 py-4 rounded-full text-lg font-bold shadow-lg shadow-[#25D366]/30 hover:shadow-xl transition-all duration-300 hover:scale-105"
+        >
+          <Fragment set:html={whatsappIcon} />
+          Trouver un restaurant
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="py-20 bg-gradient-to-b from-white to-orange-50 overflow-hidden">
+    <div class="container max-w-6xl mx-auto px-4">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">
+          Ce qu'en disent nos <span class="text-orange-500">utilisateurs</span>
+        </h2>
+        <p class="text-lg text-gray-500">
+          Rejoignez des milliers de gourmands satisfaits
+        </p>
+      </div>
+    </div>
+
+    <!-- Marquee testimonials -->
+    <div class="relative">
+      <div class="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white to-transparent z-10"></div>
+      <div class="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white to-transparent z-10"></div>
+
+      <div class="flex gap-6 animate-marquee hover:[animation-play-state:paused]" style="--duration: 40s;">
+        {[...testimonials, ...testimonials].map((testimonial) => (
+          <div class="flex-shrink-0 w-80 p-6 bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl border border-orange-100 hover:shadow-lg transition-all duration-300">
+            <div class="flex items-center gap-3 mb-4">
+              <img
+                src={testimonial.avatar}
+                alt={testimonial.name}
+                width="48"
+                height="48"
+                class="rounded-full border-2 border-orange-200"
+                loading="lazy"
+              />
+              <div>
+                <div class="font-semibold text-gray-800">{testimonial.name}</div>
+                <div class="text-sm text-gray-500">{testimonial.location}</div>
+              </div>
+            </div>
+            <div class="flex mb-3">
+              {[...Array(testimonial.rating)].map(() => (
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-yellow-500"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              ))}
+            </div>
+            <p class="text-gray-600 text-sm leading-relaxed">"{testimonial.text}"</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Cities Section -->
+  <section class="py-20 bg-white">
+    <div class="container max-w-6xl mx-auto px-4">
+      <div class="text-center mb-12 animate-fade-in">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">
+          Disponible dans <span class="text-orange-500">votre ville</span>
+        </h2>
+        <p class="text-lg text-gray-500 max-w-2xl mx-auto">
+          ChatFood est présent dans les principales villes françaises et s'étend chaque jour
+        </p>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        {cities.map((city, index) => (
+          <a
+            href={`${whatsappUrl.replace(whatsappMessage, encodeURIComponent(`Je suis à ${city.name}, qu'est-ce que vous proposez ?`))}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="group relative overflow-hidden rounded-2xl aspect-[4/3] animate-slide-up"
+            style={`animation-delay: ${index * 0.1}s`}
+          >
+            <img
+              src={city.image}
+              alt={city.name}
+              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              loading="lazy"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
+              <h3 class="font-bold text-lg">{city.name}</h3>
+              <p class="text-sm text-white/80">{city.restaurants} restaurants</p>
+            </div>
+          </a>
+        ))}
+      </div>
+
+      <div class="mt-8 text-center">
+        <p class="text-gray-500">
+          Votre ville n'est pas listée ?
+          <a
+            href={`${whatsappUrl.replace(whatsappMessage, encodeURIComponent("Bonjour, est-ce que vous livrez dans ma ville ?"))}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-orange-500 font-semibold hover:underline"
+          >
+            Demandez-nous !
+          </a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="py-16 bg-gradient-to-r from-orange-50 to-amber-50">
+    <div class="container max-w-6xl mx-auto px-4">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+        <div class="animate-fade-in">
+          <div class="text-4xl md:text-5xl font-bold text-orange-500 mb-2">500+</div>
+          <div class="text-gray-600">Restaurants partenaires</div>
+        </div>
+        <div class="animate-fade-in animation-delay-200">
+          <div class="text-4xl md:text-5xl font-bold text-orange-500 mb-2">50k+</div>
+          <div class="text-gray-600">Commandes livrées</div>
+        </div>
+        <div class="animate-fade-in animation-delay-400">
+          <div class="text-4xl md:text-5xl font-bold text-orange-500 mb-2">4.8</div>
+          <div class="text-gray-600">Note moyenne</div>
+        </div>
+        <div class="animate-fade-in animation-delay-600">
+          <div class="text-4xl md:text-5xl font-bold text-orange-500 mb-2">24/7</div>
+          <div class="text-gray-600">Disponibilité</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA Section -->
+  <section class="py-24 bg-gradient-to-br from-orange-500 via-amber-500 to-orange-600 relative overflow-hidden">
+    <!-- Decorative elements -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
+      <span class="absolute top-10 left-10 text-8xl">🍕</span>
+      <span class="absolute bottom-10 right-10 text-8xl">🍔</span>
+      <span class="absolute top-1/2 left-1/4 text-6xl">🍣</span>
+      <span class="absolute top-1/3 right-1/4 text-6xl">🌮</span>
+    </div>
+
+    <div class="container max-w-6xl mx-auto px-4 text-center relative z-10">
+      <h2 class="text-4xl md:text-5xl font-bold text-white mb-6 animate-fade-in">
+        Prêt à commander ?
+      </h2>
+      <p class="text-xl text-white/90 mb-8 max-w-xl mx-auto">
+        Votre prochain repas est à un message. Cliquez et dites-nous ce qui vous fait envie.
+      </p>
+
+      <!-- Main WhatsApp CTA -->
+      <a
+        href={whatsappUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center justify-center gap-3 bg-white text-[#25D366] px-10 py-5 rounded-full text-xl font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 mb-6"
+      >
+        <Fragment set:html={whatsappIcon} />
+        Commander sur WhatsApp
+      </a>
+
+      <p class="text-white/80 text-sm">
+        ✓ Gratuit &nbsp;•&nbsp; ✓ Pas d'inscription &nbsp;•&nbsp; ✓ Réponse immédiate
+      </p>
+    </div>
+  </section>
+
+  <!-- Sticky WhatsApp button (mobile only) -->
+  <div class="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white to-transparent md:hidden z-50 safe-area-inset-bottom">
+    <a
+      href={whatsappUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="flex items-center justify-center gap-2 w-full bg-[#25D366] hover:bg-[#128C7E] text-white py-4 rounded-xl text-lg font-bold shadow-lg"
+    >
+      <Fragment set:html={whatsappIcon} />
+      Commander maintenant
+    </a>
+  </div>
+
+  <!-- Add bottom padding on mobile for sticky button -->
+  <div class="h-20 md:hidden"></div>
+</PublicLayout>
+
+<style>
+  /* Marquee animation */
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .animate-marquee {
+    animation: marquee var(--duration, 40s) linear infinite;
+  }
+
+  /* Safe area for mobile notch */
+  .safe-area-inset-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+</style>
