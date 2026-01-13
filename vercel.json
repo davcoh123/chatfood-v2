@@ -1,5 +1,5 @@
 {
   "version": 2,
-  "buildCommand": "cd astro-app && npm install && npm run build && cp -r .vercel/output ../. && ls -la ../.vercel/output/",
+  "buildCommand": "cd astro-app && npm install && npm run build && mkdir -p ../.vercel && cp -r .vercel/output ../.vercel/",
   "installCommand": "npm install"
 }
