@@ -1,6 +1,5 @@
 {
-  "buildCommand": "cd astro-app && npm install && npm run build",
-  "outputDirectory": "astro-app/dist",
-  "installCommand": "npm install",
-  "framework": "astro"
+  "version": 2,
+  "buildCommand": "cd astro-app && npm install && npm run build && cp -r .vercel/output ../. && ls -la ../.vercel/output/",
+  "installCommand": "npm install"
 }
