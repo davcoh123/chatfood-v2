@@ -1,0 +1,216 @@
+---
+import PublicLayout from '@/layouts/PublicLayout.astro';
+import RestaurantCard from '@/components/restaurants/RestaurantCard.astro';
+import TrustBadges from '@/components/restaurants/TrustBadges.astro';
+import RestaurantFilters from '@/components/react/RestaurantFilters';
+import { createSupabaseServerClient } from '@/lib/supabase-server';
+
+// Fetch all restaurants server-side for SEO
+const supabase = createSupabaseServerClient(Astro.cookies);
+
+const { data: restaurants, error } = await supabase
+  .from('public_restaurant_view')
+  .select('restaurant_name, slug, address_city, address_postal_code, cover_image_url, assets')
+  .order('restaurant_name');
+
+if (error) {
+  console.error('Error fetching restaurants:', error);
+}
+
+// Extract unique cities for filter dropdown (sorted alphabetically)
+const cities = [...new Set(
+  restaurants
+    ?.map(r => r.address_city)
+    .filter((city): city is string => Boolean(city))
+)].sort((a, b) => a.localeCompare(b, 'fr'));
+
+// SEO Configuration
+const seoTitle = "Restaurants partenaires ChatFood - Commandez via WhatsApp";
+const seoDescription = "Découvrez tous les restaurants utilisant ChatFood. Commandez facilement via WhatsApp auprès de nos partenaires restaurateurs en France.";
+const canonicalUrl = "https://chatfood.fr/restaurants";
+
+// JSON-LD Schema for SEO
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Restaurants partenaires ChatFood",
+  "description": "Liste des restaurants utilisant l'assistant IA ChatFood pour les commandes WhatsApp",
+  "numberOfItems": restaurants?.length || 0,
+  "itemListElement": restaurants?.map((restaurant, index) => ({
+    "@type": "ListItem",
+    "position": index + 1,
+    "item": {
+      "@type": "Restaurant",
+      "name": restaurant.restaurant_name,
+      "url": `https://chatfood.fr/r/${restaurant.slug}`,
+      "image": restaurant.cover_image_url,
+      "address": {
+        "@type": "PostalAddress",
+        "postalCode": restaurant.address_postal_code,
+        "addressLocality": restaurant.address_city,
+        "addressCountry": "FR"
+      }
+    }
+  })) || []
+};
+---
+
+<PublicLayout
+  title={seoTitle}
+  description={seoDescription}
+  canonicalUrl={canonicalUrl}
+  jsonLd={structuredData}
+>
+  <!-- Hero Section -->
+  <section class="py-16 lg:py-20 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 relative overflow-hidden">
+    <!-- Decorative floating emojis -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <span class="absolute top-16 left-10 text-4xl animate-float opacity-20">🍕</span>
+      <span class="absolute top-32 right-16 text-3xl animate-float opacity-20" style="animation-delay: 0.5s">🍔</span>
+      <span class="absolute bottom-20 left-1/4 text-4xl animate-float opacity-20" style="animation-delay: 1s">🍣</span>
+      <span class="absolute bottom-16 right-1/3 text-3xl animate-float opacity-20" style="animation-delay: 1.5s">🌮</span>
+    </div>
+
+    <div class="container max-w-6xl mx-auto px-4 text-center relative z-10">
+      <span class="inline-flex items-center rounded-full border border-orange-200 bg-orange-100 px-3 py-1 text-sm font-semibold text-orange-700 mb-6 animate-fade-in">
+        🍽️ {restaurants?.length || 0} restaurants partenaires
+      </span>
+
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 animate-fade-in">
+        <span class="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 bg-clip-text text-transparent">
+          Nos restaurants
+        </span>
+      </h1>
+      <p class="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto animate-fade-in" style="animation-delay: 0.1s">
+        Découvrez les restaurants qui utilisent ChatFood et commandez facilement via <strong class="text-[#25D366]">WhatsApp</strong>
+      </p>
+    </div>
+  </section>
+
+  <!-- Trust Badges -->
+  <TrustBadges />
+
+  <!-- Filters Section (React Island for client-side interactivity) -->
+  <section class="py-6 bg-white sticky top-16 z-40 border-b shadow-sm">
+    <div class="container max-w-6xl mx-auto px-4">
+      <RestaurantFilters
+        client:load
+        cities={cities}
+        restaurantCount={restaurants?.length || 0}
+      />
+    </div>
+  </section>
+
+  <!-- Restaurant Grid -->
+  <section class="py-12 bg-gradient-to-b from-white to-orange-50/30">
+    <div class="container max-w-6xl mx-auto px-4">
+      {restaurants && restaurants.length > 0 ? (
+        <div
+          id="restaurants-grid"
+          class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6"
+        >
+          {restaurants.map((restaurant, index) => (
+            <div class="animate-slide-up" style={`animation-delay: ${Math.min(index * 0.05, 0.5)}s`}>
+              <RestaurantCard restaurant={restaurant} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-16">
+          <div class="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-10 w-10 text-orange-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" />
+            </svg>
+          </div>
+          <h2 class="text-xl font-bold text-gray-800 mb-2">Aucun restaurant disponible</h2>
+          <p class="text-gray-500">
+            Revenez bientôt pour découvrir nos partenaires !
+          </p>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-20 bg-gradient-to-br from-orange-500 via-amber-500 to-orange-600 relative overflow-hidden">
+    <!-- Decorative elements -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
+      <span class="absolute top-10 left-10 text-6xl">🍕</span>
+      <span class="absolute bottom-10 right-10 text-6xl">🍔</span>
+      <span class="absolute top-1/2 right-1/4 text-5xl">🍣</span>
+    </div>
+
+    <div class="container max-w-6xl mx-auto px-4 text-center relative z-10">
+      <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">
+        Vous êtes restaurateur ?
+      </h2>
+      <p class="text-white/90 mb-8 max-w-xl mx-auto text-lg">
+        Rejoignez ChatFood et permettez à vos clients de commander facilement via WhatsApp grâce à notre assistant IA.
+      </p>
+      <a
+        href="/contact"
+        class="inline-flex items-center justify-center gap-2 bg-white text-orange-600 font-bold py-4 px-8 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
+      >
+        Devenir partenaire
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"/>
+          <path d="m12 5 7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+  </section>
+</PublicLayout>
+
+<style>
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out forwards;
+    opacity: 0;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.5s ease-out forwards;
+    opacity: 0;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+</style>

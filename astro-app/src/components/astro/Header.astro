@@ -51,14 +51,23 @@ const pathname = Astro.url.pathname;
       >
         Contact
       </a>
-      <a 
-        href="/demo" 
+      <a
+        href="/demo"
         class:list={[
           "text-sm font-medium hover:text-primary transition-all duration-300 px-3 py-2 rounded-lg",
           pathname === "/demo" && "text-primary"
         ]}
       >
         Démo
+      </a>
+      <a
+        href="/restaurants"
+        class:list={[
+          "text-sm font-medium hover:text-primary transition-all duration-300 px-3 py-2 rounded-lg",
+          pathname === "/restaurants" && "text-primary"
+        ]}
+      >
+        Restaurants
       </a>
     </nav>
 
@@ -107,6 +116,7 @@ const pathname = Astro.url.pathname;
       <a href="/offres" class="py-3 px-4 text-center rounded-lg hover:bg-muted transition-colors">Offres</a>
       <a href="/contact" class="py-3 px-4 text-center rounded-lg hover:bg-muted transition-colors">Contact</a>
       <a href="/demo" class="py-3 px-4 text-center rounded-lg hover:bg-muted transition-colors">Démo</a>
+      <a href="/restaurants" class="py-3 px-4 text-center rounded-lg hover:bg-muted transition-colors">Restaurants</a>
       <hr class="my-2" />
       {user ? (
         <>

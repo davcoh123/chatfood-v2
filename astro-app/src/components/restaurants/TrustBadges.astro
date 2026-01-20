@@ -1,0 +1,45 @@
+---
+const trustElements = [
+  {
+    emoji: "🔒",
+    title: "100% Sécurisé",
+    description: "Paiements et données protégés"
+  },
+  {
+    emoji: "⚡",
+    title: "Réponse instantanée",
+    description: "Commandez à tout moment"
+  },
+  {
+    emoji: "💬",
+    title: "Support réactif",
+    description: "Équipe française disponible"
+  },
+  {
+    emoji: "⭐",
+    title: "Restaurants vérifiés",
+    description: "Partenaires de confiance"
+  }
+];
+---
+
+<section class="py-6 bg-white border-b">
+  <div class="container max-w-6xl mx-auto px-4">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {trustElements.map((element, index) => (
+        <div
+          class="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-100 hover:shadow-md transition-all duration-300"
+          style={`animation-delay: ${index * 0.1}s`}
+        >
+          <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
+            <span class="text-xl">{element.emoji}</span>
+          </div>
+          <div class="min-w-0">
+            <h3 class="font-semibold text-sm text-gray-800 truncate">{element.title}</h3>
+            <p class="text-xs text-gray-500 truncate">{element.description}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
